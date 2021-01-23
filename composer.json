@@ -1,0 +1,11 @@
+{
+    "name": "hexlet/code",
+    "description": "A program that determines the difference between two data structures",
+    "license": "MIT",
+    "bin": [
+        "bin/gendiff"
+    ],
+    "require": {
+        "docopt/docopt": "^1.0"
+    }
+}
