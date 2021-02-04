@@ -2,10 +2,22 @@
     "name": "hexlet/code",
     "description": "A program that determines the difference between two data structures",
     "license": "MIT",
+    "autoload": {
+        "files": [
+            "src/Differ.php"
+        ]
+    },
     "bin": [
         "bin/gendiff"
     ],
+    "scripts": {
+        "phpcs": "phpcs"
+    },
     "require": {
-        "docopt/docopt": "^1.0"
+        "docopt/docopt": "^1.0",
+        "funct/funct": "^1.5"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.5"
     }
 }
