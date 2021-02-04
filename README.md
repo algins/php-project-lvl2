@@ -7,7 +7,7 @@
 [![Actions Status](https://github.com/algins/php-project-lvl2/workflows/hexlet-check/badge.svg)](https://github.com/algins/php-project-lvl2/actions)
 
 ### Installation:
-(https://asciinema.org/a/uh5hbImfCz5cwC4J87HBG0S79)
+https://asciinema.org/a/uh5hbImfCz5cwC4J87HBG0S79
 
 ### Usage:
-(https://asciinema.org/a/uTb0DXBvf73R9mLS4RMEpIWa6)
+https://asciinema.org/a/uTb0DXBvf73R9mLS4RMEpIWa6
