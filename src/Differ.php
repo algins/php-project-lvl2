@@ -19,25 +19,27 @@ function genDiff(string $path1, string $path2): string
     sort($keys);
 
     $diff =  array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
-        $previousValue = is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key];
-        $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
-
         if (!array_key_exists($key, $arr1)) {
+            $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
             $acc[] = "  + {$key}: {$currentValue}";
             return $acc;
         }
 
         if (!array_key_exists($key, $arr2)) {
+            $previousValue = is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key];
             $acc[] = "  - {$key}: {$previousValue}";
             return $acc;
         }
 
         if ($arr1[$key] !== $arr2[$key]) {
+            $previousValue = is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key];
+            $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
             $acc[] = "  - {$key}: {$previousValue}";
             $acc[] = "  + {$key}: {$currentValue}";
             return $acc;
         }
 
+        $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
         $acc[] = "    {$key}: {$currentValue}";
 
         return $acc;
