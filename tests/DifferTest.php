@@ -7,13 +7,24 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-    public function testGenDiff(): void
+    /**
+     * @dataProvider provider
+     */
+    public function testGenDiff(string $file1, string $file2, string $format): void
     {
-        $path1 = $this->getFixturePath('file1.json');
-        $path2 = $this->getFixturePath('file2.json');
-        $diff = genDiff($path1, $path2);
+        $filepath1 = $this->getFixturePath($file1);
+        $filepath2 = $this->getFixturePath($file2);
+        $diff = genDiff($filepath1, $filepath2, $format);
 
         $this->assertStringEqualsFile($this->getFixturePath('diff'), $diff);
+    }
+
+    public function provider()
+    {
+        return [
+            ['file1.json', 'file2.json', 'json'],
+            ['file1.yaml', 'file2.yaml', 'yaml'],
+        ];
     }
 
     private function getFixturePath(string $filename): string

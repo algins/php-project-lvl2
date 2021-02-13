@@ -3,14 +3,15 @@
 namespace Differ\Differ;
 
 use function Funct\Collection\union;
+use function Differ\Parsers\parse;
 
-function genDiff(string $path1, string $path2): string
+function genDiff(string $filepath1, string $filepath2, ?string $format): string
 {
-    $data1 = readFile($path1);
-    $data2 = readFile($path2);
+    $data1 = readFile($filepath1);
+    $data2 = readFile($filepath2);
 
-    $arr1 = json_decode($data1, true);
-    $arr2 = json_decode($data2, true);
+    $arr1 = parse($data1, $format);
+    $arr2 = parse($data2, $format);
 
     $keys1 = array_keys($arr1);
     $keys2 = array_keys($arr2);

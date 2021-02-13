@@ -31,9 +31,10 @@ DOC;
 $args = Docopt::handle($doc)->args;
 
 [
-    '<firstFile>' => $firstFile,
-    '<secondFile>' => $secondFile,
+    '<firstFile>' => $filepath1
+    '<secondFile>' => $filepath2,
+    '--format' => $format,
 ] = $args;
 
-$diff = genDiff($firstFile, $secondFile);
+$diff = genDiff($filepath1, $filepath2, $format);
 print_r($diff);
