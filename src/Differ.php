@@ -4,6 +4,7 @@ namespace Differ\Differ;
 
 use function Funct\Collection\union;
 use function Differ\Parsers\parse;
+use function Differ\Formatters\Stylish\format;
 
 function genDiff(string $filepath1, string $filepath2, ?string $format): string
 {
@@ -20,33 +21,34 @@ function genDiff(string $filepath1, string $filepath2, ?string $format): string
     sort($keys);
 
     $diff =  array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
-        if (!array_key_exists($key, $arr1)) {
-            $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
-            $acc[] = "  + {$key}: {$currentValue}";
-            return $acc;
+        switch (true) {
+            case !array_key_exists($key, $arr1):
+                $state = 'added';
+                break;
+            case !array_key_exists($key, $arr2):
+                $state = 'removed';
+                break;
+            case $arr1[$key] !== $arr2[$key]:
+                $state = 'changed';
+                break;
+            default:
+                $state = 'unchanged';
+                break;
         }
 
-        if (!array_key_exists($key, $arr2)) {
-            $previousValue = is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key];
-            $acc[] = "  - {$key}: {$previousValue}";
-            return $acc;
-        }
-
-        if ($arr1[$key] !== $arr2[$key]) {
-            $previousValue = is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key];
-            $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
-            $acc[] = "  - {$key}: {$previousValue}";
-            $acc[] = "  + {$key}: {$currentValue}";
-            return $acc;
-        }
-
-        $currentValue = is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key];
-        $acc[] = "    {$key}: {$currentValue}";
+        $acc[] = [
+            'state' => $state,
+            'key' => $key,
+            'values' => [
+                'current' => is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key],
+                'previous' => is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key],
+            ],
+        ];
 
         return $acc;
     }, []);
 
-    return "{\n" . implode("\n", $diff) . "\n}\n";
+    return format($diff);
 }
 
 function readFile(string $path): string
