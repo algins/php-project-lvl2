@@ -19,7 +19,7 @@ class DifferTest extends TestCase
         $this->assertStringEqualsFile($this->getFixturePath('diff'), $diff);
     }
 
-    public function provider()
+    public function provider(): array
     {
         return [
             ['file1.json', 'file2.json', 'json'],
