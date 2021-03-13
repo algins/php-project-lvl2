@@ -41,8 +41,22 @@ function format(array $diff): string
             'key' => $key,
             'values' => $values,
         ] = $item;
-        return array_merge($acc, $mapping[$state]($key, $values));
+
+        $formattedValues = array_map(function ($value) {
+            return stringify($value);
+        }, $values);
+
+        return array_merge($acc, $mapping[$state]($key, $formattedValues));
     }, []);
 
     return "{\n" . implode("\n", $formattedDiff) . "\n}\n";
+}
+
+function stringify($value): string
+{
+    if (is_bool($value)) {
+        return $value ? 'true' : 'false';
+    };
+
+    return (string) $value;
 }

@@ -24,25 +24,32 @@ function genDiff(string $filepath1, string $filepath2, ?string $format): string
         switch (true) {
             case !array_key_exists($key, $arr1):
                 $state = 'added';
+                $values = ['current' => $arr2[$key]];
                 break;
             case !array_key_exists($key, $arr2):
                 $state = 'removed';
+                $values = ['previous' => $arr1[$key]];
                 break;
             case $arr1[$key] !== $arr2[$key]:
                 $state = 'changed';
+                $values = [
+                    'previous' => $arr1[$key],
+                    'current' => $arr2[$key],
+                ];
                 break;
             default:
                 $state = 'unchanged';
+                $values = [
+                    'previous' => $arr1[$key],
+                    'current' => $arr2[$key],
+                ];
                 break;
         }
 
         $acc[] = [
             'state' => $state,
             'key' => $key,
-            'values' => [
-                'current' => is_bool($arr2[$key]) ? $arr2[$key] ? 'true' : 'false' : $arr2[$key],
-                'previous' => is_bool($arr1[$key]) ? $arr1[$key] ? 'true' : 'false' : $arr1[$key],
-            ],
+            'values' => $values,
         ];
 
         return $acc;
