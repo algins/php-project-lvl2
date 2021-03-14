@@ -2,38 +2,39 @@
 
 namespace Differ\Formatters\Stylish;
 
+$mapping = [
+    'added' => function (string $key, array $values): array {
+        ['current' => $current] = $values;
+        return ["  + {$key}: {$current}"];
+    },
+    'removed' => function (string $key, array $values): array {
+        ['previous' => $previous] = $values;
+        return ["  - {$key}: {$previous}"];
+    },
+    'changed' => function (string $key, array $values): array {
+        [
+            'current' => $current,
+            'previous' => $previous,
+        ] = $values;
+        return [
+            "  - {$key}: {$previous}",
+            "  + {$key}: {$current}",
+        ];
+    },
+    'unchanged' => function (string $key, array $values): array {
+        ['current' => $current] = $values;
+        return ["    {$key}: {$current}"];
+    },
+];
+
 function format(array $diff): string
 {
-    $lines = buildLines($diff);
+    $lines = buildLines($diff, $mapping);
 
     return render($lines);
 }
 
-function buildLines(array $diff): array
-{
-    $mapping = [
-        'added' => function (string $key, array $values): array {
-            ['current' => $current] = $values;
-            return ["  + {$key}: {$current}"];
-        },
-        'removed' => function (string $key, array $values): array {
-            ['previous' => $previous] = $values;
-            return ["  - {$key}: {$previous}"];
-        },
-        'changed' => function (string $key, array $values): array {
-            ['current' => $current, 'previous' => $previous] = $values;
-            return ["  - {$key}: {$previous}", "  + {$key}: {$current}"];
-        },
-        'unchanged' => function (string $key, array $values): array {
-            ['current' => $current] = $values;
-            return ["    {$key}: {$current}"];
-        },
-    ];
-
-    return buildFromMapping($diff, $mapping);
-}
-
-function buildFromMapping(array $diff, array $mapping): array
+function buildLines(array $diff, array $mapping): array
 {
     return array_reduce($diff, function (array $acc, array $item) use ($mapping): array {
         [
