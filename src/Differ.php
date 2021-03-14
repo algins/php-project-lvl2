@@ -28,39 +28,49 @@ function compare(array $arr1, array $arr2): array
     $keys = unionKeys($arr1, $arr2);
 
     return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
-        switch (true) {
-            case !array_key_exists($key, $arr1):
-                $state = 'added';
-                $values = ['current' => $arr2[$key]];
-                break;
-            case !array_key_exists($key, $arr2):
-                $state = 'removed';
-                $values = ['previous' => $arr1[$key]];
-                break;
-            case $arr1[$key] !== $arr2[$key]:
-                $state = 'changed';
-                $values = [
-                    'previous' => $arr1[$key],
-                    'current' => $arr2[$key],
-                ];
-                break;
-            default:
-                $state = 'unchanged';
-                $values = [
-                    'previous' => $arr1[$key],
-                    'current' => $arr2[$key],
-                ];
-                break;
-        }
-
         $acc[] = [
-            'state' => $state,
             'key' => $key,
-            'values' => $values,
+            'state' => getKeyState($key, $arr1, $arr2),
+            'values' => getKeyValues($key, $arr1, $arr2),
         ];
 
         return $acc;
     }, []);
+}
+
+function getKeyState(string $key, array $arr1, array $arr2): string
+{
+    switch (true) {
+        case !array_key_exists($key, $arr1):
+            $state = 'added';
+            break;
+        case !array_key_exists($key, $arr2):
+            $state = 'removed';
+            break;
+        case $arr1[$key] !== $arr2[$key]:
+            $state = 'changed';
+            break;
+        default:
+            $state = 'unchanged';
+            break;
+    }
+
+    return $state;
+}
+
+function getKeyValues(string $key, array $arr1, array $arr2): array
+{
+    $values = [];
+
+    if (array_key_exists($key, $arr1)) {
+        $values['previous'] = $arr1[$key];
+    }
+
+    if (array_key_exists($key, $arr2)) {
+        $values['current'] = $arr2[$key];
+    }
+
+    return $values;
 }
 
 function unionKeys(array $arr1, array $arr2): array
