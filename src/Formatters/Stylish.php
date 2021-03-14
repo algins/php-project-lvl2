@@ -2,41 +2,16 @@
 
 namespace Differ\Formatters\Stylish;
 
-$mapping = [
-    'added' => function (string $key, array $values): array {
-        ['current' => $current] = $values;
-        return ["  + {$key}: {$current}"];
-    },
-    'removed' => function (string $key, array $values): array {
-        ['previous' => $previous] = $values;
-        return ["  - {$key}: {$previous}"];
-    },
-    'changed' => function (string $key, array $values): array {
-        [
-            'current' => $current,
-            'previous' => $previous,
-        ] = $values;
-        return [
-            "  - {$key}: {$previous}",
-            "  + {$key}: {$current}",
-        ];
-    },
-    'unchanged' => function (string $key, array $values): array {
-        ['current' => $current] = $values;
-        return ["    {$key}: {$current}"];
-    },
-];
-
 function format(array $diff): string
 {
-    $lines = buildLines($diff, $mapping);
+    $output = prepareOutput($diff);
 
-    return render($lines);
+    return render($output);
 }
 
-function buildLines(array $diff, array $mapping): array
+function prepareOutput(array $diff): array
 {
-    return array_reduce($diff, function (array $acc, array $item) use ($mapping): array {
+    return array_reduce($diff, function (array $acc, array $item): array {
         [
             'state' => $state,
             'key' => $key,
@@ -44,9 +19,41 @@ function buildLines(array $diff, array $mapping): array
         ] = $item;
 
         $stringifiedValues = stringifyValues($values);
+        $lines = buildLines($state, $key, $stringifiedValues);
 
-        return array_merge($acc, $mapping[$state]($key, $stringifiedValues));
+        return array_merge($acc, $lines);
     }, []);
+}
+
+function buildLines(string $state, string $key, array $values): array
+{
+    [
+        'previous' => $previous,
+        'current' => $current
+    ] = $values;
+
+    switch ($state) {
+        case 'added':
+            $lines = ["  + {$key}: {$current}"];
+            break;
+        case 'removed':
+            $lines = ["  - {$key}: {$previous}"];
+            break;
+        case 'changed':
+            $lines = [
+                "  - {$key}: {$previous}",
+                "  + {$key}: {$current}",
+            ];
+            break;
+        case 'unchanged':
+            $lines = ["    {$key}: {$current}"];
+            break;
+        default:
+            $lines = [];
+            break;
+    }
+
+    return $lines;
 }
 
 function stringifyValues(array $values): array
