@@ -4,7 +4,7 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-function parse(string $data, string $format): object
+function parse(string $data, string $type): object
 {
     $mapping = [
         'json' => function (string $data): object {
@@ -15,7 +15,7 @@ function parse(string $data, string $format): object
         }
     ];
 
-    return $mapping[$format]($data);
+    return $mapping[$type]($data);
 }
 
 function parseJson(string $data): object

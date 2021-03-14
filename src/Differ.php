@@ -6,21 +6,28 @@ use function Funct\Collection\union;
 use function Differ\Parsers\parse;
 use function Differ\Formatters\Stylish\format;
 
-function genDiff(string $filepath1, string $filepath2, ?string $format): string
+function genDiff(string $path1, string $path2, ?string $format): string
 {
-    $data1 = readFile($filepath1);
-    $data2 = readFile($filepath2);
+    $arr1 = (array) parse(
+        readFile($path1),
+        getFileType($path1)
+    );
 
-    $arr1 = (array) parse($data1, $format);
-    $arr2 = (array) parse($data2, $format);
+    $arr2 = (array) parse(
+        readFile($path2),
+        getFileType($path2)
+    );
 
-    $keys1 = array_keys($arr1);
-    $keys2 = array_keys($arr2);
+    $diff = compare($arr1, $arr2);
 
-    $keys = union($keys1, $keys2);
-    sort($keys);
+    return format($diff);
+}
 
-    $diff =  array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
+function compare(array $arr1, array $arr2): array
+{
+    $keys = unionKeys($arr1, $arr2);
+
+    return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
         switch (true) {
             case !array_key_exists($key, $arr1):
                 $state = 'added';
@@ -32,30 +39,30 @@ function genDiff(string $filepath1, string $filepath2, ?string $format): string
                 break;
             case $arr1[$key] !== $arr2[$key]:
                 $state = 'changed';
-                $values = [
-                    'previous' => $arr1[$key],
-                    'current' => $arr2[$key],
-                ];
+                $values = ['previous' => $arr1[$key], 'current' => $arr2[$key]];
                 break;
             default:
                 $state = 'unchanged';
-                $values = [
-                    'previous' => $arr1[$key],
-                    'current' => $arr2[$key],
-                ];
+                $values = ['previous' => $arr1[$key], 'current' => $arr2[$key]];
                 break;
         }
 
-        $acc[] = [
-            'state' => $state,
-            'key' => $key,
-            'values' => $values,
-        ];
+        $acc[] = ['state' => $state, 'key' => $key, 'values' => $values];
 
         return $acc;
     }, []);
+}
 
-    return format($diff);
+function unionKeys(array $arr1, array $arr2): array
+{
+    $keys = union(
+        array_keys($arr1),
+        array_keys($arr2)
+    );
+
+    sort($keys);
+
+    return $keys;
 }
 
 function readFile(string $path): string
@@ -64,4 +71,9 @@ function readFile(string $path): string
     $data = file_get_contents($realPath);
 
     return $data;
+}
+
+function getFileType(string $path): string
+{
+    return pathinfo($path, PATHINFO_EXTENSION);
 }
