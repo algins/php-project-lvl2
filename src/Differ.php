@@ -39,15 +39,25 @@ function compare(array $arr1, array $arr2): array
                 break;
             case $arr1[$key] !== $arr2[$key]:
                 $state = 'changed';
-                $values = ['previous' => $arr1[$key], 'current' => $arr2[$key]];
+                $values = [
+                    'previous' => $arr1[$key],
+                    'current' => $arr2[$key],
+                ];
                 break;
             default:
                 $state = 'unchanged';
-                $values = ['previous' => $arr1[$key], 'current' => $arr2[$key]];
+                $values = [
+                    'previous' => $arr1[$key],
+                    'current' => $arr2[$key],
+                ];
                 break;
         }
 
-        $acc[] = ['state' => $state, 'key' => $key, 'values' => $values];
+        $acc[] = [
+            'state' => $state,
+            'key' => $key,
+            'values' => $values,
+        ];
 
         return $acc;
     }, []);
