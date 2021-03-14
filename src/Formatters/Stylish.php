@@ -27,14 +27,16 @@ function prepareOutput(array $diff): array
 
 function buildLines(string $state, string $key, array $values): array
 {
+    $lines = [];
+
     switch ($state) {
         case 'added':
             ['current' => $current] = $values;
-            $lines = ["  + {$key}: {$current}"];
+            $lines[] = "  + {$key}: {$current}";
             break;
         case 'removed':
             ['previous' => $previous] = $values;
-            $lines = ["  - {$key}: {$previous}"];
+            $lines[] = "  - {$key}: {$previous}";
             break;
         case 'changed':
             [
@@ -42,17 +44,12 @@ function buildLines(string $state, string $key, array $values): array
                 'current' => $current
             ] = $values;
 
-            $lines = [
-                "  - {$key}: {$previous}",
-                "  + {$key}: {$current}",
-            ];
+            $lines[] = "  - {$key}: {$previous}";
+            $lines[] = "  + {$key}: {$current}";
             break;
         case 'unchanged':
             ['current' => $current] = $values;
-            $lines = ["    {$key}: {$current}"];
-            break;
-        default:
-            $lines = [];
+            $lines[] = "    {$key}: {$current}";
             break;
     }
 
