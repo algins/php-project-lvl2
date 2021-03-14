@@ -4,6 +4,13 @@ namespace Differ\Formatters\Stylish;
 
 function format(array $diff): string
 {
+    $lines = buildLines($diff);
+
+    return render($lines);
+}
+
+function buildLines(array $diff): array
+{
     $mapping = [
         'added' => function (string $key, array $values): array {
             ['current' => $current] = $values;
@@ -35,21 +42,24 @@ function format(array $diff): string
         },
     ];
 
-    $formattedDiff = array_reduce($diff, function (array $acc, array $item) use ($mapping): array {
+    return buildFromMapping($diff, $mapping);
+}
+
+function buildFromMapping(array $diff, array $mapping): array
+{
+    return array_reduce($diff, function (array $acc, array $item) use ($mapping): array {
         [
             'state' => $state,
             'key' => $key,
             'values' => $values,
         ] = $item;
 
-        $formattedValues = array_map(function ($value) {
+        $formattedValues = array_map(function ($value): string {
             return stringify($value);
         }, $values);
 
         return array_merge($acc, $mapping[$state]($key, $formattedValues));
     }, []);
-
-    return "{\n" . implode("\n", $formattedDiff) . "\n}\n";
 }
 
 function stringify($value): string
@@ -59,4 +69,9 @@ function stringify($value): string
     };
 
     return (string) $value;
+}
+
+function render(array $lines): string
+{
+    return "{\n" . implode("\n", $lines) . "\n}\n";
 }

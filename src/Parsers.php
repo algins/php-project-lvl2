@@ -4,13 +4,13 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
-function parse(string $data, string $format): array
+function parse(string $data, string $format): object
 {
     $mapping = [
-        'json' => function (string $data): array {
+        'json' => function (string $data): object {
             return parseJson($data);
         },
-        'yaml' => function (string $data): array {
+        'yaml' => function (string $data): object {
             return parseYaml($data);
         }
     ];
@@ -18,12 +18,12 @@ function parse(string $data, string $format): array
     return $mapping[$format]($data);
 }
 
-function parseJson(string $data): array
+function parseJson(string $data): object
 {
-    return json_decode($data, true);
+    return json_decode($data);
 }
 
-function parseYaml(string $data): array
+function parseYaml(string $data): object
 {
-    return Yaml::parse($data);
+    return Yaml::parse($data, Yaml::PARSE_OBJECT_FOR_MAP);
 }
