@@ -8,23 +8,26 @@ use function Differ\Formatters\Stylish\format;
 
 function genDiff(string $path1, string $path2, ?string $format): string
 {
-    $arr1 = (array) parse(
+    $obj1 = parse(
         readFile($path1),
         getFileType($path1)
     );
 
-    $arr2 = (array) parse(
+    $obj2 = parse(
         readFile($path2),
         getFileType($path2)
     );
 
-    $diff = compare($arr1, $arr2);
+    $diff = compare($obj1, $obj2);
 
     return format($diff);
 }
 
-function compare(array $arr1, array $arr2): array
+function compare(object $obj1, object $obj2): array
 {
+    $arr1 = (array) $obj1;
+    $arr2 = (array) $obj2;
+
     $keys = unionKeys($arr1, $arr2);
 
     return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
