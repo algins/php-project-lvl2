@@ -65,9 +65,6 @@ function getState(string $key, array $arr1, array $arr2): string
         case !array_key_exists($key, $arr2):
             $state = STATE_REMOVED;
             break;
-        case is_object($arr1[$key]) && is_object($arr2[$key]):
-            $state = STATE_NESTED;
-            break;
         case $arr1[$key] !== $arr2[$key]:
             $state = STATE_CHANGED;
             break;
@@ -81,6 +78,10 @@ function getState(string $key, array $arr1, array $arr2): string
 
 function isNested(string $key, array $arr1, array $arr2): bool
 {
+    if (!array_key_exists($key, $arr1) || !array_key_exists($key, $arr2)) {
+        return false;
+    }
+
     return is_object($arr1[$key]) && is_object($arr2[$key]);
 }
 
