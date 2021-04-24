@@ -4,9 +4,17 @@ namespace Differ\Differ;
 
 use function Funct\Collection\union;
 use function Differ\Parsers\parse;
-use function Differ\Formatters\Stylish\format;
+use function Differ\Formatters\Stylish\format as formatStylish;
 
-function genDiff(string $path1, string $path2, ?string $format): string
+const TYPE_FLAT = 'flat';
+const TYPE_NESTED = 'nested';
+const STATE_ADDED = 'added';
+const STATE_REMOVED = 'removed';
+const STATE_CHANGED = 'changed';
+const STATE_UNCHANGED = 'unchanged';
+const FORMATTER_STYLISH = 'stylish';
+
+function genDiff(string $path1, string $path2, ?string $formatter): string
 {
     $obj1 = parse(
         readFile($path1),
@@ -20,7 +28,7 @@ function genDiff(string $path1, string $path2, ?string $format): string
 
     $diff = compare($obj1, $obj2);
 
-    return format($diff);
+    return format($formatter)($diff);
 }
 
 function compare(object $obj1, object $obj2): array
@@ -31,37 +39,52 @@ function compare(object $obj1, object $obj2): array
     $keys = unionKeys($arr1, $arr2);
 
     return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
-        $acc[] = [
-            'key' => $key,
-            'state' => getKeyState($key, $arr1, $arr2),
-            'values' => getKeyValues($key, $arr1, $arr2),
-        ];
+        $compared['key'] = $key;
+
+        if (isNested($key, $arr1, $arr2)) {
+            $compared['type'] = TYPE_NESTED;
+            $compared['diff'] = compare($arr1[$key], $arr2[$key]);
+        } else {
+            $compared['type'] = TYPE_FLAT;
+            $compared['state'] = getState($key, $arr1, $arr2);
+            $compared['values'] = getValues($key, $arr1, $arr2);
+        }
+
+        $acc[] = $compared;
 
         return $acc;
     }, []);
 }
 
-function getKeyState(string $key, array $arr1, array $arr2): string
+function getState(string $key, array $arr1, array $arr2): string
 {
     switch (true) {
         case !array_key_exists($key, $arr1):
-            $state = 'added';
+            $state = STATE_ADDED;
             break;
         case !array_key_exists($key, $arr2):
-            $state = 'removed';
+            $state = STATE_REMOVED;
+            break;
+        case is_object($arr1[$key]) && is_object($arr2[$key]):
+            $state = STATE_NESTED;
             break;
         case $arr1[$key] !== $arr2[$key]:
-            $state = 'changed';
+            $state = STATE_CHANGED;
             break;
         default:
-            $state = 'unchanged';
+            $state = STATE_UNCHANGED;
             break;
     }
 
     return $state;
 }
 
-function getKeyValues(string $key, array $arr1, array $arr2): array
+function isNested(string $key, array $arr1, array $arr2): bool
+{
+    return is_object($arr1[$key]) && is_object($arr2[$key]);
+}
+
+function getValues(string $key, array $arr1, array $arr2): array
 {
     $values = [];
 
@@ -99,4 +122,17 @@ function readFile(string $path): string
 function getFileType(string $path): string
 {
     return pathinfo($path, PATHINFO_EXTENSION);
+}
+
+function format(?string $formatter)
+{
+    $defaultFormatter = FORMATTER_STYLISH;
+
+    $formatters = [
+        FORMATTER_STYLISH => function (array $diff) {
+            return formatStylish($diff);
+        },
+    ];
+
+    return $formatters[$formatter ?? $defaultFormatter];
 }

@@ -31,7 +31,7 @@ DOC;
 $args = Docopt::handle($doc)->args;
 
 [
-    '<firstFile>' => $filepath1
+    '<firstFile>' => $filepath1,
     '<secondFile>' => $filepath2,
     '--format' => $format,
 ] = $args;

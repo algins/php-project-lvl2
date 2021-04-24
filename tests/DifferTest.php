@@ -10,11 +10,11 @@ class DifferTest extends TestCase
     /**
      * @dataProvider provider
      */
-    public function testGenDiff(string $file1, string $file2, string $format): void
+    public function testGenDiff(string $file1, string $file2, ?string $formatter): void
     {
         $filepath1 = $this->getFixturePath($file1);
         $filepath2 = $this->getFixturePath($file2);
-        $diff = genDiff($filepath1, $filepath2, $format);
+        $diff = genDiff($filepath1, $filepath2, $formatter);
 
         $this->assertStringEqualsFile($this->getFixturePath('diff'), $diff);
     }
@@ -22,8 +22,10 @@ class DifferTest extends TestCase
     public function provider(): array
     {
         return [
-            ['file1.json', 'file2.json', 'json'],
-            ['file1.yaml', 'file2.yaml', 'yaml'],
+            ['file1.json', 'file2.json', null],
+            ['file1.yaml', 'file2.yaml', null],
+            ['file1.json', 'file2.json', 'stylish'],
+            ['file1.yaml', 'file2.yaml', 'stylish'],
         ];
     }
 
