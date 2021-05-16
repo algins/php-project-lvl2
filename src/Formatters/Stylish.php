@@ -105,7 +105,6 @@ function stringify($value, int $indentSize = 0): string
             break;
         default:
             $stringifiedValue = (string) $value;
-            break;
     }
 
     return $stringifiedValue;
