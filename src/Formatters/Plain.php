@@ -2,6 +2,8 @@
 
 namespace Differ\Formatters\Plain;
 
+use function Funct\Collection\get;
+
 use const Differ\Differ\TYPE_FLAT;
 use const Differ\Differ\TYPE_NESTED;
 use const Differ\Differ\STATE_ADDED;
@@ -21,19 +23,15 @@ function format(array $diff): string
 function buildLines(array $diff, array $propertyPathParts = []): array
 {
     return array_reduce($diff, function ($acc, $item) use ($propertyPathParts) {
-        [
-            'key' => $key,
-            'type' => $type,
-            'state' => $state,
-            'values' => $values,
-            'diff' => $nestedDiff,
-        ] = $item;
-
+        ['key' => $key, 'type' => $type] = $item;
         $propertyPathParts[] = $key;
 
         if ($type === TYPE_NESTED) {
+            ['diff' => $nestedDiff] = $item;
             return array_merge($acc, buildLines($nestedDiff, $propertyPathParts));
         }
+
+        ['state' => $state, 'values' => $values] = $item;
 
         if ($state !== STATE_UNCHANGED) {
             $propertyPath = implode('.', $propertyPathParts);
@@ -47,7 +45,8 @@ function buildLines(array $diff, array $propertyPathParts = []): array
 function buildLine(string $state, string $propertyPath, array $values): string
 {
     $states = [
-        STATE_ADDED => function (string $propertyPath, $currentValue): string {
+        STATE_ADDED => function (string $propertyPath, array $values): string {
+            ['current' => $currentValue] = $values;
             return sprintf(
                 "Property '%s' was added with value: %s",
                 $propertyPath,
@@ -60,7 +59,8 @@ function buildLine(string $state, string $propertyPath, array $values): string
                 $propertyPath
             );
         },
-        STATE_UPDATED => function (string $propertyPath, $currentValue, $previousValue): string {
+        STATE_UPDATED => function (string $propertyPath, array $values): string {
+            ['current' => $currentValue, 'previous' => $previousValue] = $values;
             return sprintf(
                 "Property '%s' was updated. From %s to %s",
                 $propertyPath,
@@ -70,9 +70,7 @@ function buildLine(string $state, string $propertyPath, array $values): string
         },
     ];
 
-    ['current' => $currentValue, 'previous' => $previousValue] = $values;
-
-    return $states[$state]($propertyPath, $currentValue, $previousValue);
+    return $states[$state]($propertyPath, $values);
 }
 
 function prepareValue($value): string
