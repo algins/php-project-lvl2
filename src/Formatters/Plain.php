@@ -47,11 +47,11 @@ function buildLines(array $diff, array $propertyPathParts = []): array
 function buildLine(string $state, string $propertyPath, array $values): string
 {
     $states = [
-        STATE_ADDED => function (string $propertyPath, $value): string {
+        STATE_ADDED => function (string $propertyPath, $currentValue): string {
             return sprintf(
                 "Property '%s' was added with value: %s",
                 $propertyPath,
-                prepareValue($value)
+                prepareValue($currentValue)
             );
         },
         STATE_REMOVED => function (string $propertyPath): string {
