@@ -6,7 +6,7 @@ use const Differ\Differ\TYPE_FLAT;
 use const Differ\Differ\TYPE_NESTED;
 use const Differ\Differ\STATE_ADDED;
 use const Differ\Differ\STATE_REMOVED;
-use const Differ\Differ\STATE_CHANGED;
+use const Differ\Differ\STATE_UPDATED;
 use const Differ\Differ\STATE_UNCHANGED;
 
 const INDENT_SIZE = 4;
@@ -57,7 +57,7 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
                 ['key' => $key, 'value' => $values['previous'], 'prefix' => PREFIX_REMOVED],
             ];
             break;
-        case STATE_CHANGED:
+        case STATE_UPDATED:
             $list = [
                 ['key' => $key, 'value' => $values['previous'], 'prefix' => PREFIX_REMOVED],
                 ['key' => $key, 'value' => $values['current'], 'prefix' => PREFIX_ADDED],
@@ -100,10 +100,7 @@ function stringify($value, int $indentSize = 0): string
         case is_null($value):
             $stringifiedValue = 'null';
             break;
-        case is_array($value):
-            $stringifiedValue = stringifyArray($value, $indentSize);
-            break;
-        case is_object($value):
+        case is_array($value) || is_object($value):
             $stringifiedValue = stringifyArray((array) $value, $indentSize);
             break;
         default:

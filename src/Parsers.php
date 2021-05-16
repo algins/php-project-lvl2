@@ -4,18 +4,21 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
+const TYPE_JSON = 'json';
+const TYPE_YAML = 'yaml';
+
 function parse(string $data, string $type): object
 {
-    $mapping = [
-        'json' => function (string $data): object {
+    $parsers = [
+        TYPE_JSON => function (string $data): object {
             return parseJson($data);
         },
-        'yaml' => function (string $data): object {
+        TYPE_YAML => function (string $data): object {
             return parseYaml($data);
         }
     ];
 
-    return $mapping[$type]($data);
+    return $parsers[$type]($data);
 }
 
 function parseJson(string $data): object

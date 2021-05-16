@@ -4,17 +4,16 @@ namespace Differ\Differ;
 
 use function Funct\Collection\union;
 use function Differ\Parsers\parse;
-use function Differ\Formatters\Stylish\format as formatStylish;
+use function Differ\Formatters\format;
 
 const TYPE_FLAT = 'flat';
 const TYPE_NESTED = 'nested';
 const STATE_ADDED = 'added';
 const STATE_REMOVED = 'removed';
-const STATE_CHANGED = 'changed';
+const STATE_UPDATED = 'updated';
 const STATE_UNCHANGED = 'unchanged';
-const FORMATTER_STYLISH = 'stylish';
 
-function genDiff(string $path1, string $path2, ?string $formatter): string
+function genDiff(string $path1, string $path2, ?string $formatName): string
 {
     $obj1 = parse(
         readFile($path1),
@@ -28,7 +27,7 @@ function genDiff(string $path1, string $path2, ?string $formatter): string
 
     $diff = compare($obj1, $obj2);
 
-    return format($formatter)($diff);
+    return format($formatName)($diff);
 }
 
 function compare(object $obj1, object $obj2): array
@@ -66,7 +65,7 @@ function getState(string $key, array $arr1, array $arr2): string
             $state = STATE_REMOVED;
             break;
         case $arr1[$key] !== $arr2[$key]:
-            $state = STATE_CHANGED;
+            $state = STATE_UPDATED;
             break;
         default:
             $state = STATE_UNCHANGED;
@@ -123,17 +122,4 @@ function readFile(string $path): string
 function getFileType(string $path): string
 {
     return pathinfo($path, PATHINFO_EXTENSION);
-}
-
-function format(?string $formatter)
-{
-    $defaultFormatter = FORMATTER_STYLISH;
-
-    $formatters = [
-        FORMATTER_STYLISH => function (array $diff) {
-            return formatStylish($diff);
-        },
-    ];
-
-    return $formatters[$formatter ?? $defaultFormatter];
 }

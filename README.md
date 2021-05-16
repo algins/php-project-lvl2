@@ -7,11 +7,10 @@
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/algins/php-project-lvl2/workflows/hexlet-check/badge.svg)](https://github.com/algins/php-project-lvl2/actions)
 
-### Installation:
-https://asciinema.org/a/D647yY79l5WX3h87KRULuSiqO
+### Setup:
+* [Installation](https://asciinema.org/a/D647yY79l5WX3h87KRULuSiqO)
 
 ### Usage:
-* [JSON diff](https://asciinema.org/a/UPIq2hhyaInaolJVh7lQuwwPh)
-* [YAML diff](https://asciinema.org/a/jjGySSzQT2amPfYjF70vqjuRn)
-
-
+* [JSON diff in stylish (default) format](https://asciinema.org/a/UPIq2hhyaInaolJVh7lQuwwPh)
+* [YAML diff in stylish (default) format](https://asciinema.org/a/jjGySSzQT2amPfYjF70vqjuRn)
+* [JSON diff in plain format](https://asciinema.org/a/3R7NXmzgSsOFzMF3Ff7WFI1iO)
