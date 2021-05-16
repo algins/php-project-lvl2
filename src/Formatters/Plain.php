@@ -2,8 +2,6 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Funct\Collection\get;
-
 use const Differ\Differ\TYPE_FLAT;
 use const Differ\Differ\TYPE_NESTED;
 use const Differ\Differ\STATE_ADDED;
@@ -54,10 +52,7 @@ function buildLine(string $state, string $propertyPath, array $values): string
             );
         },
         STATE_REMOVED => function (string $propertyPath): string {
-            return sprintf(
-                "Property '%s' was removed",
-                $propertyPath
-            );
+            return sprintf("Property '%s' was removed", $propertyPath);
         },
         STATE_UPDATED => function (string $propertyPath, array $values): string {
             ['current' => $currentValue, 'previous' => $previousValue] = $values;
@@ -77,7 +72,7 @@ function prepareValue($value): string
 {
     switch (true) {
         case is_bool($value):
-            $preparedValue = prepareBoolValue($value);
+            $preparedValue = $value ? 'true' : 'false';
             break;
         case is_null($value):
             $preparedValue = 'null';
@@ -91,9 +86,4 @@ function prepareValue($value): string
     }
 
     return $preparedValue;
-}
-
-function prepareBoolValue(bool $value): string
-{
-    return $value ? 'true' : 'false';
 }
