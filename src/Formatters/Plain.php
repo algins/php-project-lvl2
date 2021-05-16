@@ -72,7 +72,7 @@ function prepareValue($value): string
 {
     switch (true) {
         case is_bool($value):
-            $preparedValue = $value ? 'true' : 'false';
+            $preparedValue = prepareBoolValue($value);
             break;
         case is_null($value):
             $preparedValue = 'null';
@@ -82,8 +82,12 @@ function prepareValue($value): string
             break;
         default:
             $preparedValue = "'{$value}'";
-            break;
     }
 
     return $preparedValue;
+}
+
+function prepareBoolValue(bool $value): string
+{
+    return $value ? 'true' : 'false';
 }
