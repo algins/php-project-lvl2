@@ -4,9 +4,11 @@ namespace Differ\Formatters;
 
 use function Differ\Formatters\Stylish\format as formatStylish;
 use function Differ\Formatters\Plain\format as formatPlain;
+use function Differ\Formatters\Json\format as formatJson;
 
 const FORMAT_STYLISH = 'stylish';
 const FORMAT_PLAIN = 'plain';
+const FORMAT_JSON = 'json';
 
 function format(?string $formatName)
 {
@@ -16,6 +18,9 @@ function format(?string $formatName)
         },
         FORMAT_PLAIN => function (array $diff) {
             return formatPlain($diff);
+        },
+        FORMAT_JSON => function (array $diff) {
+            return formatJson($diff);
         },
     ];
 

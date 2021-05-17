@@ -7,6 +7,7 @@ use function Differ\Differ\genDiff;
 use function Differ\Formatters\getDefaultFormat;
 use const Differ\Formatters\FORMAT_STYLISH;
 use const Differ\Formatters\FORMAT_PLAIN;
+use const Differ\Formatters\FORMAT_JSON;
 
 class DifferTest extends TestCase
 {
@@ -31,6 +32,7 @@ class DifferTest extends TestCase
             ['file1.yaml', 'file2.yaml', null],
             ['file1.json', 'file2.json', FORMAT_STYLISH],
             ['file1.json', 'file2.json', FORMAT_PLAIN],
+            ['file1.json', 'file2.json', FORMAT_JSON],
         ];
     }
 

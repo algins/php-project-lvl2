@@ -1,0 +1,161 @@
+[
+    {
+        "key": "common",
+        "type": "nested",
+        "diff": [
+            {
+                "key": "follow",
+                "type": "flat",
+                "state": "added",
+                "values": {
+                    "current": false
+                }
+            },
+            {
+                "key": "setting1",
+                "type": "flat",
+                "state": "unchanged",
+                "values": {
+                    "previous": "Value 1",
+                    "current": "Value 1"
+                }
+            },
+            {
+                "key": "setting2",
+                "type": "flat",
+                "state": "removed",
+                "values": {
+                    "previous": 200
+                }
+            },
+            {
+                "key": "setting3",
+                "type": "flat",
+                "state": "updated",
+                "values": {
+                    "previous": true,
+                    "current": null
+                }
+            },
+            {
+                "key": "setting4",
+                "type": "flat",
+                "state": "added",
+                "values": {
+                    "current": "blah blah"
+                }
+            },
+            {
+                "key": "setting5",
+                "type": "flat",
+                "state": "added",
+                "values": {
+                    "current": {
+                        "key5": "value5"
+                    }
+                }
+            },
+            {
+                "key": "setting6",
+                "type": "nested",
+                "diff": [
+                    {
+                        "key": "doge",
+                        "type": "nested",
+                        "diff": [
+                            {
+                                "key": "wow",
+                                "type": "flat",
+                                "state": "updated",
+                                "values": {
+                                    "previous": "",
+                                    "current": "so much"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "key": "key",
+                        "type": "flat",
+                        "state": "unchanged",
+                        "values": {
+                            "previous": "value",
+                            "current": "value"
+                        }
+                    },
+                    {
+                        "key": "ops",
+                        "type": "flat",
+                        "state": "added",
+                        "values": {
+                            "current": "vops"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "key": "group1",
+        "type": "nested",
+        "diff": [
+            {
+                "key": "baz",
+                "type": "flat",
+                "state": "updated",
+                "values": {
+                    "previous": "bas",
+                    "current": "bars"
+                }
+            },
+            {
+                "key": "foo",
+                "type": "flat",
+                "state": "unchanged",
+                "values": {
+                    "previous": "bar",
+                    "current": "bar"
+                }
+            },
+            {
+                "key": "nest",
+                "type": "flat",
+                "state": "updated",
+                "values": {
+                    "previous": {
+                        "key": "value"
+                    },
+                    "current": "str"
+                }
+            }
+        ]
+    },
+    {
+        "key": "group2",
+        "type": "flat",
+        "state": "removed",
+        "values": {
+            "previous": {
+                "abc": 12345,
+                "deep": {
+                    "id": 45
+                }
+            }
+        }
+    },
+    {
+        "key": "group3",
+        "type": "flat",
+        "state": "added",
+        "values": {
+            "current": {
+                "deep": {
+                    "id": {
+                        "number": 45
+                    }
+                },
+                "fee": 100500
+            }
+        }
+    }
+]

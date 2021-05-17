@@ -11,6 +11,7 @@
 * [Installation](https://asciinema.org/a/D647yY79l5WX3h87KRULuSiqO)
 
 ### Usage:
-* [JSON diff in stylish (default) format](https://asciinema.org/a/UPIq2hhyaInaolJVh7lQuwwPh)
-* [YAML diff in stylish (default) format](https://asciinema.org/a/jjGySSzQT2amPfYjF70vqjuRn)
-* [JSON diff in plain format](https://asciinema.org/a/3R7NXmzgSsOFzMF3Ff7WFI1iO)
+* [JSON file diff in stylish (default) format](https://asciinema.org/a/UPIq2hhyaInaolJVh7lQuwwPh)
+* [YAML file diff in stylish (default) format](https://asciinema.org/a/jjGySSzQT2amPfYjF70vqjuRn)
+* [JSON file diff in plain format](https://asciinema.org/a/3R7NXmzgSsOFzMF3Ff7WFI1iO)
+* [JSON file diff in JSON format](https://asciinema.org/a/BNKhtgaXtsEew4jgKXXdXwX3D)
