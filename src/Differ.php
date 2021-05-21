@@ -13,7 +13,7 @@ const STATE_REMOVED = 'removed';
 const STATE_UPDATED = 'updated';
 const STATE_UNCHANGED = 'unchanged';
 
-function genDiff(string $path1, string $path2, ?string $formatName): string
+function genDiff(string $path1, string $path2, ?string $formatName = null): string
 {
     $obj1 = parse(
         readFile($path1),
