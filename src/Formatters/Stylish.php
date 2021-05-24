@@ -23,7 +23,7 @@ function format(array $diff, int $indentSize = 0): string
         TYPE_NESTED => function (string $key, array $item) use ($indentSize): array {
             ['diff' => $diff] = $item;
             $formattedDiff = format($diff, $indentSize + INDENT_SIZE);
-            return [indent("{$key}: {$formattedDiff}", $indentSize + INDENT_SIZE)];
+            return [indent("{$key}: {$formattedDiff}", $indentSize + INDENT_SIZE) . "\n"];
         },
     ];
 
@@ -77,7 +77,7 @@ function buildLines(array $list, int $initialIndentSize = 0): array
 {
     return array_map(function ($parts) use ($initialIndentSize) {
         ['key' => $key, 'value' => $value, 'prefix' => $prefix] = $parts;
-        $stringifiedValue = rtrim(stringify($value, $initialIndentSize), "\n");
+        $stringifiedValue = stringify($value, $initialIndentSize);
         $indentSize = $prefix ? $initialIndentSize - strlen($prefix) - 1 : $initialIndentSize;
         return indent(ltrim("{$prefix} {$key}: {$stringifiedValue}"), $indentSize) . "\n";
     }, $list);
@@ -86,7 +86,7 @@ function buildLines(array $list, int $initialIndentSize = 0): array
 function renderLines(array $lines, int $indentSize = 0): string
 {
     $firstLine = ["{\n"];
-    $lastLine = [indent("}\n", $indentSize)];
+    $lastLine = [indent("}", $indentSize)];
 
     return implode('', array_merge($firstLine, $lines, $lastLine));
 }
