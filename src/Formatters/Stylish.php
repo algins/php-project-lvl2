@@ -77,9 +77,9 @@ function buildLines(array $list, int $initialIndentSize = 0): array
 {
     return array_map(function ($parts) use ($initialIndentSize) {
         ['key' => $key, 'value' => $value, 'prefix' => $prefix] = $parts;
-        $stringifiedValue = stringify($value, $initialIndentSize);
+        $stringifiedValue = rtrim(stringify($value, $initialIndentSize), "\n");
         $indentSize = $prefix ? $initialIndentSize - strlen($prefix) - 1 : $initialIndentSize;
-        return indent(trim("{$prefix} {$key}: {$stringifiedValue}"), $indentSize) . "\n";
+        return indent(ltrim("{$prefix} {$key}: {$stringifiedValue}"), $indentSize) . "\n";
     }, $list);
 }
 
