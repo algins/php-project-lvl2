@@ -13,9 +13,7 @@ function format(array $diff): string
 {
     $lines = buildLines($diff);
 
-    return implode('', array_map(function ($line) {
-        return "{$line}\n";
-    }, $lines));
+    return implode("\n", $lines);
 }
 
 function buildLines(array $diff, array $propertyPathParts = []): array
