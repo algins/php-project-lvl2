@@ -75,6 +75,9 @@ function prepareValue($value): string
         case is_null($value):
             $preparedValue = 'null';
             break;
+        case is_int($value):
+            $preparedValue = $value;
+            break;
         case is_array($value) || is_object($value):
             $preparedValue = '[complex value]';
             break;
