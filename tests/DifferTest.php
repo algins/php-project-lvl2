@@ -3,8 +3,10 @@
 namespace Differ\Tests;
 
 use PHPUnit\Framework\TestCase;
+
 use function Differ\Differ\genDiff;
 use function Differ\Formatters\getDefaultFormat;
+
 use const Differ\Formatters\FORMAT_STYLISH;
 use const Differ\Formatters\FORMAT_PLAIN;
 use const Differ\Formatters\FORMAT_JSON;
