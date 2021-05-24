@@ -2,7 +2,6 @@
 
 namespace Differ\Differ;
 
-use function Funct\Collection\union;
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
 
@@ -101,14 +100,16 @@ function getValues(string $key, array $arr1, array $arr2): array
 
 function unionKeys(array $arr1, array $arr2): array
 {
-    $keys = union(
+    $keys = array_merge(
         array_keys($arr1),
         array_keys($arr2)
     );
 
-    sort($keys);
+    $uniqueKeys = array_unique($keys);
 
-    return $keys;
+    sort($uniqueKeys);
+
+    return $uniqueKeys;
 }
 
 function readFile(string $path): string
