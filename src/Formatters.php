@@ -10,16 +10,16 @@ const FORMAT_STYLISH = 'stylish';
 const FORMAT_PLAIN = 'plain';
 const FORMAT_JSON = 'json';
 
-function format(?string $formatName)
+function format(?string $formatName): callable
 {
     $formatters = [
-        FORMAT_STYLISH => function (array $diff) {
+        FORMAT_STYLISH => function (array $diff): string {
             return formatStylish($diff);
         },
-        FORMAT_PLAIN => function (array $diff) {
+        FORMAT_PLAIN => function (array $diff): string {
             return formatPlain($diff);
         },
-        FORMAT_JSON => function (array $diff) {
+        FORMAT_JSON => function (array $diff): string {
             return formatJson($diff);
         },
     ];
