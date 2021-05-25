@@ -20,21 +20,22 @@ function buildLines(array $diff, array $propertyPathParts = []): array
 {
     return array_reduce($diff, function ($acc, $item) use ($propertyPathParts) {
         ['key' => $key, 'type' => $type] = $item;
-        $propertyPathParts[] = $key;
+        $newPropertyPathParts = [...$propertyPathParts, $key];
 
         if ($type === TYPE_NESTED) {
             ['diff' => $nestedDiff] = $item;
-            return array_merge($acc, buildLines($nestedDiff, $propertyPathParts));
+            return [...$acc, ...buildLines($nestedDiff, $newPropertyPathParts)];
         }
 
         ['state' => $state, 'values' => $values] = $item;
 
-        if ($state !== STATE_UNCHANGED) {
-            $propertyPath = implode('.', $propertyPathParts);
-            $acc[] = buildLine($state, $propertyPath, $values);
+        if ($state === STATE_UNCHANGED) {
+            return $acc;
         }
 
-        return $acc;
+        $propertyPath = implode('.', $newPropertyPathParts);
+
+        return [...$acc, buildLine($state, $propertyPath, $values)];
     }, []);
 }
 
