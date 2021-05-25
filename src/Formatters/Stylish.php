@@ -29,7 +29,7 @@ function format(array $diff, int $indentSize = 0): string
 
     $lines = array_reduce($diff, function ($acc, $item) use ($types): array {
         ['type' => $type, 'key' => $key] = $item;
-        return array_merge($acc, $types[$type]($key, $item));
+        return [...$acc, ...$types[$type]($key, $item)];
     }, []);
 
     return renderLines($lines, $indentSize);
@@ -85,10 +85,10 @@ function buildLines(array $list, int $initialIndentSize = 0): array
 
 function renderLines(array $lines, int $indentSize = 0): string
 {
-    $firstLine = ["{\n"];
-    $lastLine = [indent("}", $indentSize)];
+    $firstLine = "{\n";
+    $lastLine = indent("}", $indentSize);
 
-    return implode('', array_merge($firstLine, $lines, $lastLine));
+    return implode('', [$firstLine, ...$lines, $lastLine]);
 }
 
 function stringify($value, int $indentSize = 0): string

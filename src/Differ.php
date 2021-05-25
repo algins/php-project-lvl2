@@ -36,7 +36,7 @@ function compare(object $obj1, object $obj2): array
 
     $keys = unionKeys($arr1, $arr2);
 
-    return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
+    return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2): array {
         if (isNested($key, $arr1, $arr2)) {
             $compared = [
                 'key' => $key,
@@ -102,16 +102,14 @@ function getValues(string $key, array $arr1, array $arr2): array
 
 function unionKeys(array $arr1, array $arr2): array
 {
-    $keys = array_merge(
-        array_keys($arr1),
-        array_keys($arr2)
-    );
+    $keys = [
+        ...array_keys($arr1),
+        ...array_keys($arr2),
+    ];
 
     $uniqueKeys = array_unique($keys);
 
-    sort($uniqueKeys);
-
-    return $uniqueKeys;
+    return [...$uniqueKeys].sort();
 }
 
 function readFile(string $path): string
