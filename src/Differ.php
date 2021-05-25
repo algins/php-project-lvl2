@@ -41,14 +41,14 @@ function compare(object $obj1, object $obj2): array
             $compared = [
                 'key' => $key,
                 'type' => TYPE_NESTED,
-                'diff' => compare($arr1[$key], $arr2[$key]),     
+                'diff' => compare($arr1[$key], $arr2[$key]),
             ];
         } else {
             $compared = [
                 'key' => $key,
                 'type' => TYPE_FLAT,
                 'state' => getState($key, $arr1, $arr2),
-                'values' => getValues($key, $arr1, $arr2),        
+                'values' => getValues($key, $arr1, $arr2),
             ];
         }
 
