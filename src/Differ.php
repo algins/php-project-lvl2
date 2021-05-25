@@ -37,20 +37,22 @@ function compare(object $obj1, object $obj2): array
     $keys = unionKeys($arr1, $arr2);
 
     return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2) {
-        $compared['key'] = $key;
-
         if (isNested($key, $arr1, $arr2)) {
-            $compared['type'] = TYPE_NESTED;
-            $compared['diff'] = compare($arr1[$key], $arr2[$key]);
+            $compared = [
+                'key' => $key,
+                'type' => TYPE_NESTED,
+                'diff' => compare($arr1[$key], $arr2[$key]),           
+            ];
         } else {
-            $compared['type'] = TYPE_FLAT;
-            $compared['state'] = getState($key, $arr1, $arr2);
-            $compared['values'] = getValues($key, $arr1, $arr2);
+            $compared = [
+                'key' => $key,
+                'type' => TYPE_FLAT,
+                'state' => getState($key, $arr1, $arr2),
+                'values' => getValues($key, $arr1, $arr2),          
+            ];
         }
 
-        $acc[] = $compared;
-
-        return $acc;
+        return [...$acc, $compared];
     }, []);
 }
 
