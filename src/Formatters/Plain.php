@@ -67,7 +67,7 @@ function buildLine(string $state, string $propertyPath, array $values): string
     return $states[$state]($propertyPath, $values);
 }
 
-function prepareValue($value): string
+function prepareValue(bool|null|int|array|object|string $value): string
 {
     switch (true) {
         case is_bool($value):
