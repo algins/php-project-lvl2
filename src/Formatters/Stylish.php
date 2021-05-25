@@ -75,7 +75,7 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
 
 function buildLines(array $list, int $initialIndentSize = 0): array
 {
-    return array_map(function ($parts) use ($initialIndentSize): array {
+    return array_map(function ($parts) use ($initialIndentSize): string {
         ['key' => $key, 'value' => $value, 'prefix' => $prefix] = $parts;
         $stringifiedValue = stringify($value, $initialIndentSize);
         $indentSize = $prefix ? $initialIndentSize - strlen($prefix) - 1 : $initialIndentSize;
