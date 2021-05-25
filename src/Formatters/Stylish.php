@@ -37,7 +37,7 @@ function format(array $diff, int $indentSize = 0): string
 
 function buildArrayLines(array $values, int $indentSize = 0): array
 {
-    $list = array_map(function ($key, $value) {
+    $list = array_map(function ($key, $value): array {
         return ['key' => $key, 'value' => $value, 'prefix' => null];
     }, array_keys($values), $values);
 
@@ -75,7 +75,7 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
 
 function buildLines(array $list, int $initialIndentSize = 0): array
 {
-    return array_map(function ($parts) use ($initialIndentSize) {
+    return array_map(function ($parts) use ($initialIndentSize): array {
         ['key' => $key, 'value' => $value, 'prefix' => $prefix] = $parts;
         $stringifiedValue = stringify($value, $initialIndentSize);
         $indentSize = $prefix ? $initialIndentSize - strlen($prefix) - 1 : $initialIndentSize;
@@ -91,6 +91,7 @@ function renderLines(array $lines, int $indentSize = 0): string
     return implode('', [$firstLine, ...$lines, $lastLine]);
 }
 
+/** @var mixed $value */
 function stringify($value, int $indentSize = 0): string
 {
     switch (true) {
