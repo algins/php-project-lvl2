@@ -117,7 +117,12 @@ function unionKeys(array $arr1, array $arr2): array
 function readFile(string $path): string
 {
     $realPath = realpath($path);
+
     $data = file_get_contents($realPath);
+
+    if (!$data) {
+        throw new \Exception('Data read error.');
+    }
 
     return $data;
 }
