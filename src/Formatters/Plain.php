@@ -67,7 +67,7 @@ function buildLine(string $state, string $propertyPath, array $values): string
     return $states[$state]($propertyPath, $values);
 }
 
-/** @param $value mixed */
+/** @param mixed $value */
 function prepareValue($value): string
 {
     switch (true) {

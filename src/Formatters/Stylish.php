@@ -91,7 +91,7 @@ function renderLines(array $lines, int $indentSize = 0): string
     return implode('', [$firstLine, ...$lines, $lastLine]);
 }
 
-/** @param $value mixed */
+/** @param mixed $value */
 function stringify($value, int $indentSize = 0): string
 {
     switch (true) {
