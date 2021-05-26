@@ -120,10 +120,6 @@ function readFile(string $path): string
 
     $data = file_get_contents($realPath);
 
-    if (!$data) {
-        throw new \Exception('Data read error.');
-    }
-
     return $data;
 }
 
