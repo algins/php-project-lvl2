@@ -114,7 +114,8 @@ function unionKeys(array $arr1, array $arr2): array
     return $uniqueKeys;
 }
 
-function readFile(string $path): string
+/** @return string|bool */
+function readFile(string $path)
 {
     $realPath = realpath($path);
 
