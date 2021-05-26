@@ -4,6 +4,7 @@ namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
+use function Funct\Collection\sortBy;
 
 const TYPE_FLAT = 'flat';
 const TYPE_NESTED = 'nested';
@@ -109,12 +110,9 @@ function unionKeys(array $arr1, array $arr2): array
 
     $uniqueKeys = array_unique($keys);
 
-    sort($uniqueKeys);
-
-    return $uniqueKeys;
+    return sortBy($uniqueKeys);
 }
 
-/** @return string|bool */
 function readFile(string $path)
 {
     $realPath = realpath($path);
