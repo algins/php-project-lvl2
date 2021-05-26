@@ -68,6 +68,8 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
                 ['key' => $key, 'value' => $values['current'], 'prefix' => null],
             ];
             break;
+        default:
+            $list = [];
     }
 
     return buildLines($list, $indentSize + INDENT_SIZE);
