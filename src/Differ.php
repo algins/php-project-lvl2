@@ -98,10 +98,11 @@ function getValues(string $key, array $arr1, array $arr2): array
             $values = ['previous' => $arr1[$key]];
             break;
         case array_key_exists($key, $arr2):
-            $values = ['previous' => $arr1[$key]];
+            $values = ['current' => $arr1[$key]];
             break;
         default:
             $values = [];
+            break;
     }
 
     return $values;
@@ -116,7 +117,7 @@ function unionKeys(array $arr1, array $arr2): array
 
     $uniqueKeys = array_unique($keys);
 
-    sort($uniqueKeys)
+    sort($uniqueKeys);
 
     return $uniqueKeys;
 }
