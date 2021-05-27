@@ -98,7 +98,7 @@ function getValues(string $key, array $arr1, array $arr2): array
             $values = ['previous' => $arr1[$key]];
             break;
         case array_key_exists($key, $arr2):
-            $values = ['current' => $arr1[$key]];
+            $values = ['current' => $arr2[$key]];
             break;
         default:
             $values = [];
