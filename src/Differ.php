@@ -117,6 +117,7 @@ function unionKeys(array $arr1, array $arr2): array
 
     $uniqueKeys = array_unique($keys);
 
+    /** @phpstan-ignore-next-line */
     sort($uniqueKeys);
 
     return $uniqueKeys;
