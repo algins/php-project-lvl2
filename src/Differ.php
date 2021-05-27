@@ -122,11 +122,19 @@ function unionKeys(array $arr1, array $arr2): array
     return $uniqueKeys;
 }
 
-function readFile(string $path)
+function readFile(string $path): ?string
 {
     $realPath = realpath($path);
 
+    if ($realPath === false) {
+        return null;
+    }
+
     $data = file_get_contents($realPath);
+
+    if ($data === false) {
+        return null;
+    }
 
     return $data;
 }
