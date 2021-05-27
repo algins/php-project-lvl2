@@ -112,7 +112,7 @@ function unionKeys(array $arr1, array $arr2): array
 
     $sortedKeys = sortBy($uniqueKeys, function ($key) {
         return $key;
-    }, 'sort');
+    });
 
     return $sortedKeys;
 }
