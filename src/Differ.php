@@ -4,7 +4,6 @@ namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
-use function Funct\Collection\sortBy;
 
 const TYPE_FLAT = 'flat';
 const TYPE_NESTED = 'nested';
@@ -88,14 +87,21 @@ function isNested(string $key, array $arr1, array $arr2): bool
 
 function getValues(string $key, array $arr1, array $arr2): array
 {
-    $values = [];
-
-    if (array_key_exists($key, $arr1)) {
-        $values['previous'] = $arr1[$key];
-    }
-
-    if (array_key_exists($key, $arr2)) {
-        $values['current'] = $arr2[$key];
+    switch (true) {
+        case array_key_exists($key, $arr1) && array_key_exists($key, $arr2):
+            $values = [
+                'previous' => $arr1[$key],
+                'current' => $arr2[$key],
+            ];
+            break;
+        case array_key_exists($key, $arr1):
+            $values = ['previous' => $arr1[$key]];
+            break;
+        case array_key_exists($key, $arr2):
+            $values = ['previous' => $arr1[$key]];
+            break;
+        default:
+            $values = [];
     }
 
     return $values;
@@ -110,7 +116,9 @@ function unionKeys(array $arr1, array $arr2): array
 
     $uniqueKeys = array_unique($keys);
 
-    return [...sort($uniqueKeys)];
+    sort($uniqueKeys)
+
+    return $uniqueKeys;
 }
 
 function readFile(string $path)
