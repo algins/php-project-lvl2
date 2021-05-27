@@ -127,13 +127,13 @@ function readFile(string $path): string
     $realPath = realpath($path);
 
     if ($realPath === false) {
-        throw new Exception('Path not exists.');
+        throw new \Exception('Path not exists.');
     }
 
     $data = file_get_contents($realPath);
 
     if ($data === false) {
-        throw new Exception('Data read error.');
+        throw new \Exception('Data read error.');
     }
 
     return $data;
