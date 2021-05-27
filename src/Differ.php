@@ -110,11 +110,7 @@ function unionKeys(array $arr1, array $arr2): array
 
     $uniqueKeys = array_unique($keys);
 
-    $sortedKeys = sortBy($uniqueKeys, function ($key) {
-        return $key;
-    });
-
-    return array_values($sortedKeys);
+    return [...sort($uniqueKeys)];
 }
 
 function readFile(string $path)
