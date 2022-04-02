@@ -4,6 +4,7 @@ namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
 use function Differ\Formatters\format;
+use function Functional\sort;
 
 const TYPE_FLAT = 'flat';
 const TYPE_NESTED = 'nested';
@@ -116,11 +117,9 @@ function unionKeys(array $arr1, array $arr2): array
     ];
 
     $uniqueKeys = array_unique($keys);
+    $sortedKeys = sort($uniqueKeys, fn($left, $right) => strcmp($left, $right));
 
-    /** @phpstan-ignore-next-line */
-    sort($uniqueKeys);
-
-    return $uniqueKeys;
+    return $sortedKeys;
 }
 
 function readFile(string $path): string
