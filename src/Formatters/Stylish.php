@@ -2,12 +2,12 @@
 
 namespace Differ\Formatters\Stylish;
 
+use const Differ\Differ\STATE_ADDED;
+use const Differ\Differ\STATE_CHANGED;
+use const Differ\Differ\STATE_REMOVED;
+use const Differ\Differ\STATE_UNCHANGED;
 use const Differ\Differ\TYPE_FLAT;
 use const Differ\Differ\TYPE_NESTED;
-use const Differ\Differ\STATE_ADDED;
-use const Differ\Differ\STATE_REMOVED;
-use const Differ\Differ\STATE_UPDATED;
-use const Differ\Differ\STATE_UNCHANGED;
 
 const INDENT_SIZE = 4;
 const PREFIX_ADDED = '+';
@@ -21,7 +21,7 @@ function format(array $diff, int $indentSize = 0): string
             return buildDiffLines($state, $key, $values, $indentSize);
         },
         TYPE_NESTED => function (string $key, array $item) use ($indentSize): array {
-            ['diff' => $diff] = $item;
+            ['children' => $diff] = $item;
             $formattedDiff = format($diff, $indentSize + INDENT_SIZE);
             return [indent("{$key}: {$formattedDiff}", $indentSize + INDENT_SIZE) . "\n"];
         },
@@ -49,23 +49,23 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
     switch ($state) {
         case STATE_ADDED:
             $list = [
-                ['key' => $key, 'value' => $values['current'], 'prefix' => PREFIX_ADDED],
+                ['key' => $key, 'value' => $values['second'], 'prefix' => PREFIX_ADDED],
             ];
             break;
         case STATE_REMOVED:
             $list = [
-                ['key' => $key, 'value' => $values['previous'], 'prefix' => PREFIX_REMOVED],
+                ['key' => $key, 'value' => $values['first'], 'prefix' => PREFIX_REMOVED],
             ];
             break;
-        case STATE_UPDATED:
+        case STATE_CHANGED:
             $list = [
-                ['key' => $key, 'value' => $values['previous'], 'prefix' => PREFIX_REMOVED],
-                ['key' => $key, 'value' => $values['current'], 'prefix' => PREFIX_ADDED],
+                ['key' => $key, 'value' => $values['first'], 'prefix' => PREFIX_REMOVED],
+                ['key' => $key, 'value' => $values['second'], 'prefix' => PREFIX_ADDED],
             ];
             break;
         case STATE_UNCHANGED:
             $list = [
-                ['key' => $key, 'value' => $values['current'], 'prefix' => null],
+                ['key' => $key, 'value' => $values['second'], 'prefix' => null],
             ];
             break;
         default:

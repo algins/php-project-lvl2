@@ -2,13 +2,13 @@
     {
         "key": "common",
         "type": "nested",
-        "diff": [
+        "children": [
             {
                 "key": "follow",
                 "type": "flat",
                 "state": "added",
                 "values": {
-                    "current": false
+                    "second": false
                 }
             },
             {
@@ -16,8 +16,8 @@
                 "type": "flat",
                 "state": "unchanged",
                 "values": {
-                    "previous": "Value 1",
-                    "current": "Value 1"
+                    "first": "Value 1",
+                    "second": "Value 1"
                 }
             },
             {
@@ -25,16 +25,16 @@
                 "type": "flat",
                 "state": "removed",
                 "values": {
-                    "previous": 200
+                    "first": 200
                 }
             },
             {
                 "key": "setting3",
                 "type": "flat",
-                "state": "updated",
+                "state": "changed",
                 "values": {
-                    "previous": true,
-                    "current": null
+                    "first": true,
+                    "second": null
                 }
             },
             {
@@ -42,7 +42,7 @@
                 "type": "flat",
                 "state": "added",
                 "values": {
-                    "current": "blah blah"
+                    "second": "blah blah"
                 }
             },
             {
@@ -50,7 +50,7 @@
                 "type": "flat",
                 "state": "added",
                 "values": {
-                    "current": {
+                    "second": {
                         "key5": "value5"
                     }
                 }
@@ -58,18 +58,18 @@
             {
                 "key": "setting6",
                 "type": "nested",
-                "diff": [
+                "children": [
                     {
                         "key": "doge",
                         "type": "nested",
-                        "diff": [
+                        "children": [
                             {
                                 "key": "wow",
                                 "type": "flat",
-                                "state": "updated",
+                                "state": "changed",
                                 "values": {
-                                    "previous": "",
-                                    "current": "so much"
+                                    "first": "",
+                                    "second": "so much"
                                 }
                             }
                         ]
@@ -79,8 +79,8 @@
                         "type": "flat",
                         "state": "unchanged",
                         "values": {
-                            "previous": "value",
-                            "current": "value"
+                            "first": "value",
+                            "second": "value"
                         }
                     },
                     {
@@ -88,7 +88,7 @@
                         "type": "flat",
                         "state": "added",
                         "values": {
-                            "current": "vops"
+                            "second": "vops"
                         }
                     }
                 ]
@@ -98,14 +98,14 @@
     {
         "key": "group1",
         "type": "nested",
-        "diff": [
+        "children": [
             {
                 "key": "baz",
                 "type": "flat",
-                "state": "updated",
+                "state": "changed",
                 "values": {
-                    "previous": "bas",
-                    "current": "bars"
+                    "first": "bas",
+                    "second": "bars"
                 }
             },
             {
@@ -113,19 +113,19 @@
                 "type": "flat",
                 "state": "unchanged",
                 "values": {
-                    "previous": "bar",
-                    "current": "bar"
+                    "first": "bar",
+                    "second": "bar"
                 }
             },
             {
                 "key": "nest",
                 "type": "flat",
-                "state": "updated",
+                "state": "changed",
                 "values": {
-                    "previous": {
+                    "first": {
                         "key": "value"
                     },
-                    "current": "str"
+                    "second": "str"
                 }
             }
         ]
@@ -135,7 +135,7 @@
         "type": "flat",
         "state": "removed",
         "values": {
-            "previous": {
+            "first": {
                 "abc": 12345,
                 "deep": {
                     "id": 45
@@ -148,7 +148,7 @@
         "type": "flat",
         "state": "added",
         "values": {
-            "current": {
+            "second": {
                 "deep": {
                     "id": {
                         "number": 45

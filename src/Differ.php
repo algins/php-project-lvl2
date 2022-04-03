@@ -2,16 +2,18 @@
 
 namespace Differ\Differ;
 
-use function Differ\Parsers\parse;
+use Exception;
+
 use function Differ\Formatters\format;
+use function Differ\Parsers\parse;
 use function Functional\sort;
 
+const STATE_ADDED = 'added';
+const STATE_CHANGED = 'changed';
+const STATE_REMOVED = 'removed';
+const STATE_UNCHANGED = 'unchanged';
 const TYPE_FLAT = 'flat';
 const TYPE_NESTED = 'nested';
-const STATE_ADDED = 'added';
-const STATE_REMOVED = 'removed';
-const STATE_UPDATED = 'updated';
-const STATE_UNCHANGED = 'unchanged';
 
 function genDiff(string $path1, string $path2, ?string $formatName = null): string
 {
@@ -32,24 +34,42 @@ function genDiff(string $path1, string $path2, ?string $formatName = null): stri
 
 function compare(object $obj1, object $obj2): array
 {
-    $arr1 = (array) $obj1;
-    $arr2 = (array) $obj2;
+    $keys = unionKeys($obj1, $obj2);
 
-    $keys = unionKeys($arr1, $arr2);
-
-    return array_reduce($keys, function ($acc, $key) use ($arr1, $arr2): array {
-        if (isNested($key, $arr1, $arr2)) {
+    return array_reduce($keys, function ($acc, $key) use ($obj1, $obj2): array {
+        if (!property_exists($obj1, $key)) {
+            $compared = [
+                'key' => $key,
+                'type' => TYPE_FLAT,
+                'state' => STATE_ADDED,
+                'values' => ['second' => $obj2->{$key}],
+            ];
+        } elseif (!property_exists($obj2, $key)) {
+            $compared = [
+                'key' => $key,
+                'type' => TYPE_FLAT,
+                'state' => STATE_REMOVED,
+                'values' => ['first' => $obj1->{$key}],
+            ];
+        } elseif (is_object($obj1->{$key}) && is_object($obj2->{$key})) {
             $compared = [
                 'key' => $key,
                 'type' => TYPE_NESTED,
-                'diff' => compare($arr1[$key], $arr2[$key]),
+                'children' => compare($obj1->{$key}, $obj2->{$key}),
+            ];
+        } elseif ($obj1->{$key} !== $obj2->{$key}) {
+            $compared = [
+                'key' => $key,
+                'type' => TYPE_FLAT,
+                'state' => STATE_CHANGED,
+                'values' => ['first' => $obj1->{$key}, 'second' => $obj2->{$key}],
             ];
         } else {
             $compared = [
                 'key' => $key,
                 'type' => TYPE_FLAT,
-                'state' => getState($key, $arr1, $arr2),
-                'values' => getValues($key, $arr1, $arr2),
+                'state' => STATE_UNCHANGED,
+                'values' => ['first' => $obj1->{$key}, 'second' => $obj2->{$key}],
             ];
         }
 
@@ -57,63 +77,11 @@ function compare(object $obj1, object $obj2): array
     }, []);
 }
 
-function getState(string $key, array $arr1, array $arr2): string
-{
-    switch (true) {
-        case !array_key_exists($key, $arr1):
-            $state = STATE_ADDED;
-            break;
-        case !array_key_exists($key, $arr2):
-            $state = STATE_REMOVED;
-            break;
-        case $arr1[$key] !== $arr2[$key]:
-            $state = STATE_UPDATED;
-            break;
-        default:
-            $state = STATE_UNCHANGED;
-            break;
-    }
-
-    return $state;
-}
-
-function isNested(string $key, array $arr1, array $arr2): bool
-{
-    if (!array_key_exists($key, $arr1) || !array_key_exists($key, $arr2)) {
-        return false;
-    }
-
-    return is_object($arr1[$key]) && is_object($arr2[$key]);
-}
-
-function getValues(string $key, array $arr1, array $arr2): array
-{
-    switch (true) {
-        case array_key_exists($key, $arr1) && array_key_exists($key, $arr2):
-            $values = [
-                'previous' => $arr1[$key],
-                'current' => $arr2[$key],
-            ];
-            break;
-        case array_key_exists($key, $arr1):
-            $values = ['previous' => $arr1[$key]];
-            break;
-        case array_key_exists($key, $arr2):
-            $values = ['current' => $arr2[$key]];
-            break;
-        default:
-            $values = [];
-            break;
-    }
-
-    return $values;
-}
-
-function unionKeys(array $arr1, array $arr2): array
+function unionKeys(object $obj1, object $obj2): array
 {
     $keys = [
-        ...array_keys($arr1),
-        ...array_keys($arr2),
+        ...array_keys((array) $obj1),
+        ...array_keys((array) $obj2),
     ];
 
     $uniqueKeys = array_unique($keys);
@@ -127,13 +95,13 @@ function readFile(string $path): string
     $realPath = realpath($path);
 
     if ($realPath === false) {
-        throw new \Exception('Path not exists.');
+        throw new Exception('Path not exists.');
     }
 
     $data = file_get_contents($realPath);
 
     if ($data === false) {
-        throw new \Exception('Data read error.');
+        throw new Exception('Data read error.');
     }
 
     return $data;

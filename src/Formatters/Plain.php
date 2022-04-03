@@ -2,12 +2,12 @@
 
 namespace Differ\Formatters\Plain;
 
+use const Differ\Differ\STATE_ADDED;
+use const Differ\Differ\STATE_CHANGED;
+use const Differ\Differ\STATE_REMOVED;
+use const Differ\Differ\STATE_UNCHANGED;
 use const Differ\Differ\TYPE_FLAT;
 use const Differ\Differ\TYPE_NESTED;
-use const Differ\Differ\STATE_ADDED;
-use const Differ\Differ\STATE_REMOVED;
-use const Differ\Differ\STATE_UPDATED;
-use const Differ\Differ\STATE_UNCHANGED;
 
 function format(array $diff): string
 {
@@ -23,7 +23,7 @@ function buildLines(array $diff, array $propertyPathParts = []): array
         $newPropertyPathParts = [...$propertyPathParts, $key];
 
         if ($type === TYPE_NESTED) {
-            ['diff' => $nestedDiff] = $item;
+            ['children' => $nestedDiff] = $item;
             return [...$acc, ...buildLines($nestedDiff, $newPropertyPathParts)];
         }
 
@@ -43,7 +43,7 @@ function buildLine(string $state, string $propertyPath, array $values): string
 {
     $states = [
         STATE_ADDED => function (string $propertyPath, array $values): string {
-            ['current' => $currentValue] = $values;
+            ['second' => $currentValue] = $values;
             return sprintf(
                 "Property '%s' was added with value: %s",
                 $propertyPath,
@@ -53,8 +53,8 @@ function buildLine(string $state, string $propertyPath, array $values): string
         STATE_REMOVED => function (string $propertyPath): string {
             return sprintf("Property '%s' was removed", $propertyPath);
         },
-        STATE_UPDATED => function (string $propertyPath, array $values): string {
-            ['current' => $currentValue, 'previous' => $previousValue] = $values;
+        STATE_CHANGED => function (string $propertyPath, array $values): string {
+            ['second' => $currentValue, 'first' => $previousValue] = $values;
             return sprintf(
                 "Property '%s' was updated. From %s to %s",
                 $propertyPath,
