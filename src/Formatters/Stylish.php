@@ -6,30 +6,33 @@ use const Differ\Differ\STATE_ADDED;
 use const Differ\Differ\STATE_CHANGED;
 use const Differ\Differ\STATE_REMOVED;
 use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_FLAT;
-use const Differ\Differ\TYPE_NESTED;
+use const Differ\Differ\TYPE_INTERNAL;
+use const Differ\Differ\TYPE_LEAF;
 
 const INDENT_SIZE = 4;
 const PREFIX_ADDED = '+';
 const PREFIX_REMOVED = '-';
 
-function format(array $diff, int $indentSize = 0): string
+function format(array $tree, int $indentSize = 0): string
 {
     $types = [
-        TYPE_FLAT => function (string $key, array $item) use ($indentSize): array {
-            ['state' => $state, 'values' => $values] = $item;
+        TYPE_LEAF => function (string $key, array $node) use ($indentSize): array {
+            $state = $node['state'];
+            $values = array_key_exists('value', $node)
+                ? ['value' => $node['value']]
+                : ['value1' => $node['value1'], 'value2' => $node['value2']];
             return buildDiffLines($state, $key, $values, $indentSize);
         },
-        TYPE_NESTED => function (string $key, array $item) use ($indentSize): array {
-            ['children' => $diff] = $item;
-            $formattedDiff = format($diff, $indentSize + INDENT_SIZE);
+        TYPE_INTERNAL => function (string $key, array $node) use ($indentSize): array {
+            $formattedDiff = format($node, $indentSize + INDENT_SIZE);
             return [indent("{$key}: {$formattedDiff}", $indentSize + INDENT_SIZE) . "\n"];
         },
     ];
 
-    $lines = array_reduce($diff, function ($acc, $item) use ($types): array {
-        ['type' => $type, 'key' => $key] = $item;
-        return [...$acc, ...$types[$type]($key, $item)];
+    $nodes = $tree['children'];
+    $lines = array_reduce($nodes, function ($acc, $node) use ($types): array {
+        ['type' => $type, 'key' => $key] = $node;
+        return [...$acc, ...$types[$type]($key, $node)];
     }, []);
 
     return renderLines($lines, $indentSize);
@@ -49,23 +52,23 @@ function buildDiffLines(string $state, string $key, array $values, int $indentSi
     switch ($state) {
         case STATE_ADDED:
             $list = [
-                ['key' => $key, 'value' => $values['second'], 'prefix' => PREFIX_ADDED],
+                ['key' => $key, 'value' => $values['value'], 'prefix' => PREFIX_ADDED],
             ];
             break;
         case STATE_REMOVED:
             $list = [
-                ['key' => $key, 'value' => $values['first'], 'prefix' => PREFIX_REMOVED],
+                ['key' => $key, 'value' => $values['value'], 'prefix' => PREFIX_REMOVED],
             ];
             break;
         case STATE_CHANGED:
             $list = [
-                ['key' => $key, 'value' => $values['first'], 'prefix' => PREFIX_REMOVED],
-                ['key' => $key, 'value' => $values['second'], 'prefix' => PREFIX_ADDED],
+                ['key' => $key, 'value' => $values['value1'], 'prefix' => PREFIX_REMOVED],
+                ['key' => $key, 'value' => $values['value2'], 'prefix' => PREFIX_ADDED],
             ];
             break;
         case STATE_UNCHANGED:
             $list = [
-                ['key' => $key, 'value' => $values['second'], 'prefix' => null],
+                ['key' => $key, 'value' => $values['value1'], 'prefix' => null],
             ];
             break;
         default:

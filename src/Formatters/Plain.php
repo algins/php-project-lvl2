@@ -6,28 +6,31 @@ use const Differ\Differ\STATE_ADDED;
 use const Differ\Differ\STATE_CHANGED;
 use const Differ\Differ\STATE_REMOVED;
 use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_FLAT;
-use const Differ\Differ\TYPE_NESTED;
+use const Differ\Differ\TYPE_INTERNAL;
 
-function format(array $diff): string
+function format(array $tree): string
 {
-    $lines = buildLines($diff);
+    $lines = buildLines($tree);
 
     return implode("\n", $lines);
 }
 
-function buildLines(array $diff, array $propertyPathParts = []): array
+function buildLines(array $tree, array $propertyPathParts = []): array
 {
-    return array_reduce($diff, function ($acc, $item) use ($propertyPathParts) {
-        ['key' => $key, 'type' => $type] = $item;
+    $nodes = $tree['children'];
+
+    return array_reduce($nodes, function ($acc, $node) use ($propertyPathParts) {
+        ['key' => $key, 'type' => $type] = $node;
         $newPropertyPathParts = [...$propertyPathParts, $key];
 
-        if ($type === TYPE_NESTED) {
-            ['children' => $nestedDiff] = $item;
-            return [...$acc, ...buildLines($nestedDiff, $newPropertyPathParts)];
+        if ($type === TYPE_INTERNAL) {
+            return [...$acc, ...buildLines($node, $newPropertyPathParts)];
         }
 
-        ['state' => $state, 'values' => $values] = $item;
+        $state = $node['state'];
+        $values = array_key_exists('value', $node)
+            ? ['value' => $node['value']]
+            : ['value1' => $node['value1'], 'value2' => $node['value2']];
 
         if ($state === STATE_UNCHANGED) {
             return $acc;
@@ -43,23 +46,23 @@ function buildLine(string $state, string $propertyPath, array $values): string
 {
     $states = [
         STATE_ADDED => function (string $propertyPath, array $values): string {
-            ['second' => $currentValue] = $values;
+            ['value' => $value] = $values;
             return sprintf(
                 "Property '%s' was added with value: %s",
                 $propertyPath,
-                prepareValue($currentValue)
+                prepareValue($value)
             );
         },
         STATE_REMOVED => function (string $propertyPath): string {
             return sprintf("Property '%s' was removed", $propertyPath);
         },
         STATE_CHANGED => function (string $propertyPath, array $values): string {
-            ['second' => $currentValue, 'first' => $previousValue] = $values;
+            ['value2' => $value2, 'value1' => $value1] = $values;
             return sprintf(
                 "Property '%s' was updated. From %s to %s",
                 $propertyPath,
-                prepareValue($previousValue),
-                prepareValue($currentValue)
+                prepareValue($value1),
+                prepareValue($value2)
             );
         },
     ];

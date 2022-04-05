@@ -12,8 +12,9 @@ const STATE_ADDED = 'added';
 const STATE_CHANGED = 'changed';
 const STATE_REMOVED = 'removed';
 const STATE_UNCHANGED = 'unchanged';
-const TYPE_FLAT = 'flat';
-const TYPE_NESTED = 'nested';
+const TYPE_INTERNAL = 'internal';
+const TYPE_LEAF = 'leaf';
+const TYPE_ROOT = 'root';
 
 function genDiff(string $path1, string $path2, ?string $formatName = null): string
 {
@@ -27,54 +28,65 @@ function genDiff(string $path1, string $path2, ?string $formatName = null): stri
         getFileType($path2)
     );
 
-    $diff = compare($obj1, $obj2);
+    $diff = buildTree($obj1, $obj2);
 
     return format($formatName)($diff);
 }
 
-function compare(object $obj1, object $obj2): array
+function buildTree(object $obj1, object $obj2): array
+{
+    return [
+        'type' => TYPE_ROOT,
+        'children' => buildNodes($obj1, $obj2),
+    ];
+}
+
+function buildNodes(object $obj1, object $obj2): array
 {
     $keys = unionKeys($obj1, $obj2);
 
-    return array_reduce($keys, function ($acc, $key) use ($obj1, $obj2): array {
+    return array_map(function ($key) use ($obj1, $obj2): array {
+        $value1 = $obj1->{$key} ?? null;
+        $value2 = $obj2->{$key} ?? null;
+
         if (!property_exists($obj1, $key)) {
-            $compared = [
+            return [
                 'key' => $key,
-                'type' => TYPE_FLAT,
+                'type' => TYPE_LEAF,
                 'state' => STATE_ADDED,
-                'values' => ['second' => $obj2->{$key}],
+                'value' => $value2,
             ];
         } elseif (!property_exists($obj2, $key)) {
-            $compared = [
+            return [
                 'key' => $key,
-                'type' => TYPE_FLAT,
+                'type' => TYPE_LEAF,
                 'state' => STATE_REMOVED,
-                'values' => ['first' => $obj1->{$key}],
+                'value' => $value1,
             ];
-        } elseif (is_object($obj1->{$key}) && is_object($obj2->{$key})) {
-            $compared = [
+        } elseif (is_object($value1) && is_object($value2)) {
+            return [
                 'key' => $key,
-                'type' => TYPE_NESTED,
-                'children' => compare($obj1->{$key}, $obj2->{$key}),
+                'type' => TYPE_INTERNAL,
+                'children' => buildNodes($value1, $value2),
             ];
-        } elseif ($obj1->{$key} !== $obj2->{$key}) {
-            $compared = [
+        } elseif ($value1 !== $value2) {
+            return [
                 'key' => $key,
-                'type' => TYPE_FLAT,
+                'type' => TYPE_LEAF,
                 'state' => STATE_CHANGED,
-                'values' => ['first' => $obj1->{$key}, 'second' => $obj2->{$key}],
+                'value1' => $value1,
+                'value2' => $value2,
             ];
         } else {
-            $compared = [
+            return [
                 'key' => $key,
-                'type' => TYPE_FLAT,
+                'type' => TYPE_LEAF,
                 'state' => STATE_UNCHANGED,
-                'values' => ['first' => $obj1->{$key}, 'second' => $obj2->{$key}],
+                'value1' => $value1,
+                'value2' => $value2,
             ];
         }
-
-        return [...$acc, $compared];
-    }, []);
+    }, $keys);
 }
 
 function unionKeys(object $obj1, object $obj2): array
