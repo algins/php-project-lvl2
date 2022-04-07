@@ -14,27 +14,46 @@ use const Differ\Formatters\FORMAT_JSON;
 class DifferTest extends TestCase
 {
     /**
-     * @dataProvider provider
+     * @dataProvider fileTypeProvider
      */
-    public function testGenDiff(string $file1, string $file2, ?string $formatName): void
+    public function testGenDiffForDifferentFileTypes(string $fileType): void
     {
 
-        $inputFilepath1 = $this->getFixturePath($file1);
-        $inputFilepath2 = $this->getFixturePath($file2);
-        $diff = genDiff($inputFilepath1, $inputFilepath2, $formatName);
-        $outputFilepath = $this->getFixturePath($formatName ?? getDefaultFormat());
+        $inputFilepath1 = $this->getFixturePath("file1.{$fileType}");
+        $inputFilepath2 = $this->getFixturePath("file2.{$fileType}");
+        $diff = genDiff($inputFilepath1, $inputFilepath2);
+        $outputFilepath = $this->getFixturePath(FORMAT_STYLISH);
 
         $this->assertStringEqualsFile($outputFilepath, $diff);
     }
 
-    public function provider(): array
+    public function fileTypeProvider(): array
     {
         return [
-            ['file1.json', 'file2.json', null],
-            ['file1.yaml', 'file2.yaml', null],
-            ['file1.json', 'file2.json', FORMAT_STYLISH],
-            ['file1.json', 'file2.json', FORMAT_PLAIN],
-            ['file1.json', 'file2.json', FORMAT_JSON],
+            ['json'],
+            ['yaml'],
+        ];
+    }
+
+    /**
+     * @dataProvider outputFormatProvider
+     */
+    public function testGenDiffForDifferentOutputFormats(string $outputFormat): void
+    {
+        $inputFilepath1 = $this->getFixturePath('file1.json');
+        $inputFilepath2 = $this->getFixturePath('file2.json');
+        $diff = genDiff($inputFilepath1, $inputFilepath2, $outputFormat);
+        $outputFilepath = $this->getFixturePath($outputFormat);
+
+        $this->assertStringEqualsFile($outputFilepath, $diff);
+    }
+
+    public function outputFormatProvider(): array
+    {
+        return [
+            [FORMAT_STYLISH],
+            [FORMAT_PLAIN],
+            [FORMAT_JSON],
         ];
     }
 

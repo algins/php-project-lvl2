@@ -8,6 +8,8 @@ use function Differ\Formatters\format;
 use function Differ\Parsers\parse;
 use function Functional\sort;
 
+use const Differ\Formatters\FORMAT_STYLISH;
+
 const STATE_ADDED = 'added';
 const STATE_CHANGED = 'changed';
 const STATE_REMOVED = 'removed';
@@ -16,7 +18,7 @@ const TYPE_INTERNAL = 'internal';
 const TYPE_LEAF = 'leaf';
 const TYPE_ROOT = 'root';
 
-function genDiff(string $path1, string $path2, ?string $formatName = null): string
+function genDiff(string $path1, string $path2, string $formatName = FORMAT_STYLISH): string
 {
     $obj1 = parse(
         readFile($path1),
@@ -30,7 +32,7 @@ function genDiff(string $path1, string $path2, ?string $formatName = null): stri
 
     $diff = buildTree($obj1, $obj2);
 
-    return format($formatName)($diff);
+    return format($diff, $formatName);
 }
 
 function buildTree(object $obj1, object $obj2): array
