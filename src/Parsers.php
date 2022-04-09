@@ -2,6 +2,7 @@
 
 namespace Differ\Parsers;
 
+use Exception;
 use Symfony\Component\Yaml\Yaml;
 
 const TYPE_JSON = 'json';

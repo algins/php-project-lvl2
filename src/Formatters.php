@@ -2,17 +2,19 @@
 
 namespace Differ\Formatters;
 
-use function Differ\Formatters\Json\format as formatJson;
-use function Differ\Formatters\Plain\format as formatPlain;
-use function Differ\Formatters\Stylish\format as formatStylish;
+use Exception;
+
+use function Differ\Formatters\Json\render as formatJson;
+use function Differ\Formatters\Plain\render as formatPlain;
+use function Differ\Formatters\Stylish\render as formatStylish;
 
 const FORMAT_STYLISH = 'stylish';
 const FORMAT_PLAIN = 'plain';
 const FORMAT_JSON = 'json';
 
-function format(array $diff, string $formatName): string
+function render(array $diff, string $format): string
 {
-    switch ($formatName) {
+    switch ($format) {
         case FORMAT_STYLISH:
             return formatStylish($diff);
         case FORMAT_PLAIN:

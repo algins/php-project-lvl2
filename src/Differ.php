@@ -4,7 +4,7 @@ namespace Differ\Differ;
 
 use Exception;
 
-use function Differ\Formatters\format;
+use function Differ\Formatters\render;
 use function Differ\Parsers\parse;
 use function Functional\sort;
 
@@ -18,7 +18,7 @@ const TYPE_INTERNAL = 'internal';
 const TYPE_LEAF = 'leaf';
 const TYPE_ROOT = 'root';
 
-function genDiff(string $path1, string $path2, string $formatName = FORMAT_STYLISH): string
+function genDiff(string $path1, string $path2, string $format = FORMAT_STYLISH): string
 {
     $obj1 = parse(
         readFile($path1),
@@ -32,7 +32,7 @@ function genDiff(string $path1, string $path2, string $formatName = FORMAT_STYLI
 
     $diff = buildTree($obj1, $obj2);
 
-    return format($diff, $formatName);
+    return render($diff, $format);
 }
 
 function buildTree(object $obj1, object $obj2): array
@@ -84,8 +84,7 @@ function buildNodes(object $obj1, object $obj2): array
                 'key' => $key,
                 'type' => TYPE_LEAF,
                 'state' => STATE_UNCHANGED,
-                'value1' => $value1,
-                'value2' => $value2,
+                'value' => $value1,
             ];
         }
     }, $keys);

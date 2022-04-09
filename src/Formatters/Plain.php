@@ -8,7 +8,7 @@ use const Differ\Differ\STATE_REMOVED;
 use const Differ\Differ\STATE_UNCHANGED;
 use const Differ\Differ\TYPE_INTERNAL;
 
-function format(array $tree): string
+function render(array $tree): string
 {
     $lines = buildLines($tree);
 

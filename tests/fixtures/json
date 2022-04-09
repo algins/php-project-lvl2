@@ -15,8 +15,7 @@
                     "key": "setting1",
                     "type": "leaf",
                     "state": "unchanged",
-                    "value1": "Value 1",
-                    "value2": "Value 1"
+                    "value": "Value 1"
                 },
                 {
                     "key": "setting2",
@@ -66,8 +65,7 @@
                             "key": "key",
                             "type": "leaf",
                             "state": "unchanged",
-                            "value1": "value",
-                            "value2": "value"
+                            "value": "value"
                         },
                         {
                             "key": "ops",
@@ -94,8 +92,7 @@
                     "key": "foo",
                     "type": "leaf",
                     "state": "unchanged",
-                    "value1": "bar",
-                    "value2": "bar"
+                    "value": "bar"
                 },
                 {
                     "key": "nest",

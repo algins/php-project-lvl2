@@ -2,125 +2,84 @@
 
 namespace Differ\Formatters\Stylish;
 
+use Exception;
+
 use const Differ\Differ\STATE_ADDED;
 use const Differ\Differ\STATE_CHANGED;
 use const Differ\Differ\STATE_REMOVED;
 use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_INTERNAL;
 use const Differ\Differ\TYPE_LEAF;
 
-const INDENT_SIZE = 4;
-const PREFIX_ADDED = '+';
-const PREFIX_REMOVED = '-';
+const SPACES_COUNT = 4;
 
-function format(array $tree, int $indentSize = 0): string
+function render(array $tree): string
 {
-    $types = [
-        TYPE_LEAF => function (string $key, array $node) use ($indentSize): array {
-            $state = $node['state'];
-            $values = array_key_exists('value', $node)
-                ? ['value' => $node['value']]
-                : ['value1' => $node['value1'], 'value2' => $node['value2']];
-            return buildDiffLines($state, $key, $values, $indentSize);
-        },
-        TYPE_INTERNAL => function (string $key, array $node) use ($indentSize): array {
-            $formattedDiff = format($node, $indentSize + INDENT_SIZE);
-            return [indent("{$key}: {$formattedDiff}", $indentSize + INDENT_SIZE) . "\n"];
-        },
-    ];
-
-    $nodes = $tree['children'];
-    $lines = array_reduce($nodes, function ($acc, $node) use ($types): array {
-        ['type' => $type, 'key' => $key] = $node;
-        return [...$acc, ...$types[$type]($key, $node)];
-    }, []);
-
-    return renderLines($lines, $indentSize);
+    return iter($tree);
 }
 
-function buildArrayLines(array $values, int $indentSize = 0): array
+function iter(array $tree, int $depth = 1): string
 {
-    $list = array_map(function ($key, $value): array {
-        return ['key' => $key, 'value' => $value, 'prefix' => null];
-    }, array_keys($values), $values);
+    $indent = getIndent($depth);
 
-    return buildLines($list, $indentSize + INDENT_SIZE);
+    $parts = array_map(function ($node) use ($indent, $depth) {
+        $key = $node['key'];
+
+        if ($node['type'] === TYPE_LEAF) {
+            switch ($node['state']) {
+                case STATE_ADDED:
+                    $stringifiedValue = stringify($node['value'], $depth);
+                    return "{$indent}+ {$key}: {$stringifiedValue}";
+                case STATE_REMOVED:
+                    $stringifiedValue = stringify($node['value'], $depth);
+                    return "{$indent}- {$key}: {$stringifiedValue}";
+                case STATE_CHANGED:
+                    $stringifiedValue1 = stringify($node['value1'], $depth);
+                    $stringifiedValue2 = stringify($node['value2'], $depth);
+                    return implode("\n", [
+                        "{$indent}- {$key}: {$stringifiedValue1}",
+                        "{$indent}+ {$key}: {$stringifiedValue2}",
+                    ]);
+                case STATE_UNCHANGED:
+                    $stringifiedValue = stringify($node['value'], $depth);
+                    return "{$indent}  {$key}: {$stringifiedValue}";
+                default:
+                    throw new Exception('Invalid state!');
+            }
+        }
+
+        $value = iter($node, $depth + 1);
+
+        return "{$indent}  {$key}: {$value}";
+    }, $tree['children']);
+
+    return "{\n" . implode("\n", $parts) . "\n" . substr($indent, 2) . "}";
 }
 
-function buildDiffLines(string $state, string $key, array $values, int $indentSize = 0): array
+function stringify($value, int $depth): string
 {
-    switch ($state) {
-        case STATE_ADDED:
-            $list = [
-                ['key' => $key, 'value' => $values['value'], 'prefix' => PREFIX_ADDED],
-            ];
-            break;
-        case STATE_REMOVED:
-            $list = [
-                ['key' => $key, 'value' => $values['value'], 'prefix' => PREFIX_REMOVED],
-            ];
-            break;
-        case STATE_CHANGED:
-            $list = [
-                ['key' => $key, 'value' => $values['value1'], 'prefix' => PREFIX_REMOVED],
-                ['key' => $key, 'value' => $values['value2'], 'prefix' => PREFIX_ADDED],
-            ];
-            break;
-        case STATE_UNCHANGED:
-            $list = [
-                ['key' => $key, 'value' => $values['value1'], 'prefix' => null],
-            ];
-            break;
+    switch (gettype($value)) {
+        case 'boolean':
+            return stringifyBool($value);
+        case 'NULL':
+            return 'null';
+        case 'array':
+        case 'object':
+            return stringifyArray((array) $value, $depth);
         default:
-            $list = [];
+            return (string) $value;
     }
-
-    return buildLines($list, $indentSize + INDENT_SIZE);
 }
 
-function buildLines(array $list, int $initialIndentSize = 0): array
+function stringifyArray(array $arr, int $depth): string
 {
-    return array_map(function ($parts) use ($initialIndentSize): string {
-        ['key' => $key, 'value' => $value, 'prefix' => $prefix] = $parts;
-        $stringifiedValue = stringify($value, $initialIndentSize);
-        $indentSize = $prefix ? $initialIndentSize - strlen($prefix) - 1 : $initialIndentSize;
-        return indent(ltrim("{$prefix} {$key}: {$stringifiedValue}"), $indentSize) . "\n";
-    }, $list);
-}
+    $indent = getIndent($depth + 1);
 
-function renderLines(array $lines, int $indentSize = 0): string
-{
-    $firstLine = "{\n";
-    $lastLine = indent("}", $indentSize);
+    $parts = array_map(function ($key, $value) use ($indent, $depth) {
+        $stringifiedValue = stringify($value, $depth + 1);
+        return "{$indent}  {$key}: {$stringifiedValue}";
+    }, array_keys($arr), $arr);
 
-    return implode('', [$firstLine, ...$lines, $lastLine]);
-}
-
-/** @param mixed $value */
-function stringify($value, int $indentSize = 0): string
-{
-    switch (true) {
-        case is_bool($value):
-            $stringifiedValue = stringifyBool($value);
-            break;
-        case is_null($value):
-            $stringifiedValue = 'null';
-            break;
-        case is_array($value) || is_object($value):
-            $stringifiedValue = stringifyArray((array) $value, $indentSize);
-            break;
-        default:
-            $stringifiedValue = (string) $value;
-    }
-
-    return $stringifiedValue;
-}
-
-function stringifyArray(array $values, int $indentSize = 0): string
-{
-    $lines = buildArrayLines($values, $indentSize);
-
-    return renderLines($lines, $indentSize);
+    return "{\n" . implode("\n", $parts) . "\n" . substr($indent, 2) . "}";
 }
 
 function stringifyBool(bool $value): string
@@ -128,7 +87,7 @@ function stringifyBool(bool $value): string
     return $value ? 'true' : 'false';
 }
 
-function indent(string $value, int $indentSize): string
+function getIndent(int $depth): string
 {
-    return str_repeat(' ', $indentSize) . $value;
+    return str_repeat(' ', SPACES_COUNT * $depth - 2);
 }
