@@ -55,6 +55,7 @@ function iter(array $tree, int $depth = 1): string
     return "{\n" . implode("\n", $parts) . "\n" . substr($indent, 2) . "}";
 }
 
+/** @param mixed $value */
 function stringify($value, int $depth): string
 {
     switch (gettype($value)) {
