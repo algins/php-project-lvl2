@@ -2,98 +2,68 @@
 
 namespace Differ\Formatters\Plain;
 
+use Exception;
+
 use const Differ\Differ\STATE_ADDED;
 use const Differ\Differ\STATE_CHANGED;
 use const Differ\Differ\STATE_REMOVED;
 use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_INTERNAL;
+use const Differ\Differ\TYPE_LEAF;
 
 function render(array $tree): string
 {
-    $lines = buildLines($tree);
-
-    return implode("\n", $lines);
+    return iter($tree);
 }
 
-function buildLines(array $tree, array $propertyPathParts = []): array
+function iter(array $tree, $parentKeys = []): string
 {
-    $nodes = $tree['children'];
+    $parts = array_map(function ($node) use ($parentKeys) {
+        $keys = [...$parentKeys, $node['key']];
+        $property = implode('.', $keys);
 
-    return array_reduce($nodes, function ($acc, $node) use ($propertyPathParts) {
-        ['key' => $key, 'type' => $type] = $node;
-        $newPropertyPathParts = [...$propertyPathParts, $key];
-
-        if ($type === TYPE_INTERNAL) {
-            return [...$acc, ...buildLines($node, $newPropertyPathParts)];
+        if ($node['type'] === TYPE_LEAF) {
+            switch ($node['state']) {
+                case STATE_ADDED:
+                    $stringifiedValue = stringify($node['value']);
+                    return "Property '{$property}' was added with value: {$stringifiedValue}";
+                case STATE_REMOVED:
+                    return "Property '{$property}' was removed";
+                case STATE_CHANGED:
+                    $stringifiedValue1 = stringify($node['value1']);
+                    $stringifiedValue2 = stringify($node['value2']);
+                    return "Property '{$property}' was updated. From {$stringifiedValue1} to {$stringifiedValue2}";
+                case STATE_UNCHANGED:
+                    return;
+                default:
+                    throw new Exception('Invalid state!');
+            }
         }
 
-        $state = $node['state'];
-        $values = array_key_exists('value', $node)
-            ? ['value' => $node['value']]
-            : ['value1' => $node['value1'], 'value2' => $node['value2']];
+        return iter($node, $keys);
+    }, $tree['children']);
 
-        if ($state === STATE_UNCHANGED) {
-            return $acc;
-        }
-
-        $propertyPath = implode('.', $newPropertyPathParts);
-
-        return [...$acc, buildLine($state, $propertyPath, $values)];
-    }, []);
-}
-
-function buildLine(string $state, string $propertyPath, array $values): string
-{
-    $states = [
-        STATE_ADDED => function (string $propertyPath, array $values): string {
-            ['value' => $value] = $values;
-            return sprintf(
-                "Property '%s' was added with value: %s",
-                $propertyPath,
-                prepareValue($value)
-            );
-        },
-        STATE_REMOVED => function (string $propertyPath): string {
-            return sprintf("Property '%s' was removed", $propertyPath);
-        },
-        STATE_CHANGED => function (string $propertyPath, array $values): string {
-            ['value2' => $value2, 'value1' => $value1] = $values;
-            return sprintf(
-                "Property '%s' was updated. From %s to %s",
-                $propertyPath,
-                prepareValue($value1),
-                prepareValue($value2)
-            );
-        },
-    ];
-
-    return $states[$state]($propertyPath, $values);
+    return implode("\n", array_filter($parts));
 }
 
 /** @param mixed $value */
-function prepareValue($value): string
+function stringify($value): string
 {
-    switch (true) {
-        case is_bool($value):
-            $preparedValue = prepareBoolValue($value);
-            break;
-        case is_null($value):
-            $preparedValue = 'null';
-            break;
-        case is_int($value):
-            $preparedValue = (string) $value;
-            break;
-        case is_array($value) || is_object($value):
-            $preparedValue = '[complex value]';
-            break;
+    switch (gettype($value)) {
+        case 'boolean':
+            return stringifyBool($value);
+        case 'NULL':
+            return 'null';
+        case 'integer':
+            return (string) $value;
+        case 'array':
+        case 'object':
+            return '[complex value]';
         default:
-            $preparedValue = "'{$value}'";
+            return "'{$value}'";
     }
-
-    return $preparedValue;
 }
 
-function prepareBoolValue(bool $value): string
+function stringifyBool(bool $value): string
 {
     return $value ? 'true' : 'false';
 }
