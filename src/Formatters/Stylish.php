@@ -58,13 +58,13 @@ function iter(array $tree, int $depth = 1): string
 /** @param mixed $value */
 function stringify($value, int $depth): string
 {
-    switch (gettype($value)) {
-        case 'boolean':
+    switch (true) {
+        case is_bool($value):
             return stringifyBool($value);
-        case 'NULL':
+        case is_null($value):
             return 'null';
-        case 'array':
-        case 'object':
+        case is_object($value):
+        case is_array($value):
             return stringifyArray((array) $value, $depth);
         default:
             return (string) $value;

@@ -48,15 +48,15 @@ function iter(array $tree, array $parentKeys = []): string
 /** @param mixed $value */
 function stringify($value): string
 {
-    switch (gettype($value)) {
-        case 'boolean':
+    switch (true) {
+        case is_bool($value):
             return stringifyBool($value);
-        case 'NULL':
+        case is_null($value):
             return 'null';
-        case 'integer':
+        case is_int($value):
             return (string) $value;
-        case 'array':
-        case 'object':
+        case is_object($value):
+        case is_array($value):
             return '[complex value]';
         default:
             return "'{$value}'";
