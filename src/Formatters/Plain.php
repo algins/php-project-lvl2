@@ -15,7 +15,7 @@ function render(array $tree): string
     return iter($tree);
 }
 
-function iter(array $tree, $parentKeys = []): string
+function iter(array $tree, array $parentKeys = []): string
 {
     $parts = array_map(function ($node) use ($parentKeys) {
         $keys = [...$parentKeys, $node['key']];
