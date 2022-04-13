@@ -4,45 +4,47 @@ namespace Differ\Formatters\Plain;
 
 use Exception;
 
-use const Differ\Differ\STATE_ADDED;
-use const Differ\Differ\STATE_CHANGED;
-use const Differ\Differ\STATE_REMOVED;
-use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_LEAF;
+use const Differ\Differ\TYPE_ADDED;
+use const Differ\Differ\TYPE_CHANGED;
+use const Differ\Differ\TYPE_NESTED;
+use const Differ\Differ\TYPE_REMOVED;
+use const Differ\Differ\TYPE_ROOT;
+use const Differ\Differ\TYPE_UNCHANGED;
 
 function render(array $tree): string
 {
     return iter($tree);
 }
 
-function iter(array $tree, array $parentKeys = []): string
+function iter(array $node, array $parentKeys = []): ?string
 {
-    $parts = array_map(function ($node) use ($parentKeys) {
-        $keys = [...$parentKeys, $node['key']];
-        $property = implode('.', $keys);
+    $keys = array_key_exists('key', $node) ? [...$parentKeys, $node['key']] : $parentKeys;
+    $property = implode('.', $keys);
 
-        if ($node['type'] === TYPE_LEAF) {
-            switch ($node['state']) {
-                case STATE_ADDED:
-                    $stringifiedValue = stringify($node['value']);
-                    return "Property '{$property}' was added with value: {$stringifiedValue}";
-                case STATE_REMOVED:
-                    return "Property '{$property}' was removed";
-                case STATE_CHANGED:
-                    $stringifiedValue1 = stringify($node['value1']);
-                    $stringifiedValue2 = stringify($node['value2']);
-                    return "Property '{$property}' was updated. From {$stringifiedValue1} to {$stringifiedValue2}";
-                case STATE_UNCHANGED:
-                    return;
-                default:
-                    throw new Exception('Invalid state!');
-            }
-        }
+    switch ($node['type']) {
+        case TYPE_ADDED:
+            $value = stringify($node['value']);
+            return "Property '{$property}' was added with value: {$value}";
 
-        return iter($node, $keys);
-    }, $tree['children']);
+        case TYPE_REMOVED:
+            return "Property '{$property}' was removed";
 
-    return implode("\n", array_filter($parts));
+        case TYPE_CHANGED:
+            $value1 = stringify($node['value1']);
+            $value2 = stringify($node['value2']);
+            return "Property '{$property}' was updated. From {$value1} to {$value2}";
+
+        case TYPE_UNCHANGED:
+            return null;
+
+        case TYPE_NESTED:
+        case TYPE_ROOT:
+            $children = array_map(fn($child) => iter($child, $keys), $node['children']);
+            return implode("\n", array_filter($children));
+
+        default:
+            throw new Exception("Unknown type: {$node['type']}");
+    }
 }
 
 /** @param mixed $value */
