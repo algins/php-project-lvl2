@@ -16,7 +16,7 @@ function parse(string $data, string $type): object
         case TYPE_YAML:
             return parseYaml($data);
         default:
-            throw new Exception('Invalid type!');
+            throw new Exception("Unknown type: {$type}");
     }
 }
 

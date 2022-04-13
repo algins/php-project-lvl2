@@ -22,6 +22,6 @@ function render(array $diff, string $format): string
         case FORMAT_JSON:
             return formatJson($diff);
         default:
-            throw new Exception('Invalid format!');
+            throw new Exception("Unknown format: {$format}");
     }
 }

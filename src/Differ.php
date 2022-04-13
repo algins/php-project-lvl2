@@ -10,13 +10,12 @@ use function Functional\sort;
 
 use const Differ\Formatters\FORMAT_STYLISH;
 
-const STATE_ADDED = 'added';
-const STATE_CHANGED = 'changed';
-const STATE_REMOVED = 'removed';
-const STATE_UNCHANGED = 'unchanged';
-const TYPE_INTERNAL = 'internal';
-const TYPE_LEAF = 'leaf';
+const TYPE_ADDED = 'added';
+const TYPE_CHANGED = 'changed';
+const TYPE_NESTED = 'nested';
+const TYPE_REMOVED = 'removed';
 const TYPE_ROOT = 'root';
+const TYPE_UNCHANGED = 'unchanged';
 
 function genDiff(string $path1, string $path2, string $format = FORMAT_STYLISH): string
 {
@@ -54,36 +53,32 @@ function buildNodes(object $obj1, object $obj2): array
         if (!property_exists($obj1, $key)) {
             return [
                 'key' => $key,
-                'type' => TYPE_LEAF,
-                'state' => STATE_ADDED,
+                'type' => TYPE_ADDED,
                 'value' => $value2,
             ];
         } elseif (!property_exists($obj2, $key)) {
             return [
                 'key' => $key,
-                'type' => TYPE_LEAF,
-                'state' => STATE_REMOVED,
+                'type' => TYPE_REMOVED,
                 'value' => $value1,
             ];
         } elseif (is_object($value1) && is_object($value2)) {
             return [
                 'key' => $key,
-                'type' => TYPE_INTERNAL,
+                'type' => TYPE_NESTED,
                 'children' => buildNodes($value1, $value2),
             ];
         } elseif ($value1 !== $value2) {
             return [
                 'key' => $key,
-                'type' => TYPE_LEAF,
-                'state' => STATE_CHANGED,
+                'type' => TYPE_CHANGED,
                 'value1' => $value1,
                 'value2' => $value2,
             ];
         } else {
             return [
                 'key' => $key,
-                'type' => TYPE_LEAF,
-                'state' => STATE_UNCHANGED,
+                'type' => TYPE_UNCHANGED,
                 'value' => $value1,
             ];
         }

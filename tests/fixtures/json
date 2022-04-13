@@ -3,59 +3,52 @@
     "children": [
         {
             "key": "common",
-            "type": "internal",
+            "type": "nested",
             "children": [
                 {
                     "key": "follow",
-                    "type": "leaf",
-                    "state": "added",
+                    "type": "added",
                     "value": false
                 },
                 {
                     "key": "setting1",
-                    "type": "leaf",
-                    "state": "unchanged",
+                    "type": "unchanged",
                     "value": "Value 1"
                 },
                 {
                     "key": "setting2",
-                    "type": "leaf",
-                    "state": "removed",
+                    "type": "removed",
                     "value": 200
                 },
                 {
                     "key": "setting3",
-                    "type": "leaf",
-                    "state": "changed",
+                    "type": "changed",
                     "value1": true,
                     "value2": null
                 },
                 {
                     "key": "setting4",
-                    "type": "leaf",
-                    "state": "added",
+                    "type": "added",
                     "value": "blah blah"
                 },
                 {
                     "key": "setting5",
-                    "type": "leaf",
-                    "state": "added",
+                    "type": "added",
                     "value": {
                         "key5": "value5"
                     }
                 },
                 {
                     "key": "setting6",
-                    "type": "internal",
+                    "type": "nested",
                     "children": [
                         {
                             "key": "doge",
-                            "type": "internal",
+                            "type": "nested",
                             "children": [
                                 {
                                     "key": "wow",
-                                    "type": "leaf",
-                                    "state": "changed",
+                                    "type": "changed",
                                     "value1": "",
                                     "value2": "so much"
                                 }
@@ -63,14 +56,12 @@
                         },
                         {
                             "key": "key",
-                            "type": "leaf",
-                            "state": "unchanged",
+                            "type": "unchanged",
                             "value": "value"
                         },
                         {
                             "key": "ops",
-                            "type": "leaf",
-                            "state": "added",
+                            "type": "added",
                             "value": "vops"
                         }
                     ]
@@ -79,25 +70,22 @@
         },
         {
             "key": "group1",
-            "type": "internal",
+            "type": "nested",
             "children": [
                 {
                     "key": "baz",
-                    "type": "leaf",
-                    "state": "changed",
+                    "type": "changed",
                     "value1": "bas",
                     "value2": "bars"
                 },
                 {
                     "key": "foo",
-                    "type": "leaf",
-                    "state": "unchanged",
+                    "type": "unchanged",
                     "value": "bar"
                 },
                 {
                     "key": "nest",
-                    "type": "leaf",
-                    "state": "changed",
+                    "type": "changed",
                     "value1": {
                         "key": "value"
                     },
@@ -107,8 +95,7 @@
         },
         {
             "key": "group2",
-            "type": "leaf",
-            "state": "removed",
+            "type": "removed",
             "value": {
                 "abc": 12345,
                 "deep": {
@@ -118,8 +105,7 @@
         },
         {
             "key": "group3",
-            "type": "leaf",
-            "state": "added",
+            "type": "added",
             "value": {
                 "deep": {
                     "id": {

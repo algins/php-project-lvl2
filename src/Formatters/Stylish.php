@@ -4,11 +4,12 @@ namespace Differ\Formatters\Stylish;
 
 use Exception;
 
-use const Differ\Differ\STATE_ADDED;
-use const Differ\Differ\STATE_CHANGED;
-use const Differ\Differ\STATE_REMOVED;
-use const Differ\Differ\STATE_UNCHANGED;
-use const Differ\Differ\TYPE_LEAF;
+use const Differ\Differ\TYPE_ADDED;
+use const Differ\Differ\TYPE_CHANGED;
+use const Differ\Differ\TYPE_NESTED;
+use const Differ\Differ\TYPE_REMOVED;
+use const Differ\Differ\TYPE_ROOT;
+use const Differ\Differ\TYPE_UNCHANGED;
 
 const SPACES_COUNT = 4;
 
@@ -17,42 +18,50 @@ function render(array $tree): string
     return iter($tree);
 }
 
-function iter(array $tree, int $depth = 1): string
+function iter(array $node, int $depth = 1): string
 {
     $indent = getIndent($depth);
 
-    $parts = array_map(function ($node) use ($indent, $depth) {
-        $key = $node['key'];
+    switch ($node['type']) {
+        case TYPE_ADDED:
+            $value = stringify($node['value'], $depth);
+            return "{$indent}+ {$node['key']}: {$value}";
 
-        if ($node['type'] === TYPE_LEAF) {
-            switch ($node['state']) {
-                case STATE_ADDED:
-                    $stringifiedValue = stringify($node['value'], $depth);
-                    return "{$indent}+ {$key}: {$stringifiedValue}";
-                case STATE_REMOVED:
-                    $stringifiedValue = stringify($node['value'], $depth);
-                    return "{$indent}- {$key}: {$stringifiedValue}";
-                case STATE_CHANGED:
-                    $stringifiedValue1 = stringify($node['value1'], $depth);
-                    $stringifiedValue2 = stringify($node['value2'], $depth);
-                    return implode("\n", [
-                        "{$indent}- {$key}: {$stringifiedValue1}",
-                        "{$indent}+ {$key}: {$stringifiedValue2}",
-                    ]);
-                case STATE_UNCHANGED:
-                    $stringifiedValue = stringify($node['value'], $depth);
-                    return "{$indent}  {$key}: {$stringifiedValue}";
-                default:
-                    throw new Exception('Invalid state!');
-            }
-        }
+        case TYPE_REMOVED:
+            $value = stringify($node['value'], $depth);
+            return "{$indent}- {$node['key']}: {$value}";
 
-        $value = iter($node, $depth + 1);
+        case TYPE_CHANGED:
+            $value1 = stringify($node['value1'], $depth);
+            $value2 = stringify($node['value2'], $depth);
+            return implode("\n", [
+                "{$indent}- {$node['key']}: {$value1}",
+                "{$indent}+ {$node['key']}: {$value2}",
+            ]);
 
-        return "{$indent}  {$key}: {$value}";
-    }, $tree['children']);
+        case TYPE_UNCHANGED:
+            $value = stringify($node['value'], $depth);
+            return "{$indent}  {$node['key']}: {$value}";
 
-    return "{\n" . implode("\n", $parts) . "\n" . substr($indent, 2) . "}";
+        case TYPE_NESTED:
+            $value = implode("\n", [
+                '{',
+                ...array_map(fn($child) => iter($child, $depth + 1), $node['children']),
+                "{$indent}  }",
+            ]);
+            return "{$indent}  {$node['key']}: {$value}";
+
+        case TYPE_ROOT:
+            $value = implode("\n", [
+                '{',
+                ...array_map(fn($child) => iter($child, $depth), $node['children']),
+                '}',
+            ]);
+            return $value;
+
+        default:
+            throw new Exception("Unknown type: {$node['type']}");
+    }
 }
 
 /** @param mixed $value */
@@ -73,14 +82,19 @@ function stringify($value, int $depth): string
 
 function stringifyArray(array $arr, int $depth): string
 {
-    $indent = getIndent($depth + 1);
+    $indent = getIndent($depth);
+    $nextIndent = getIndent($depth + 1);
 
-    $parts = array_map(function ($key, $value) use ($indent, $depth) {
-        $stringifiedValue = stringify($value, $depth + 1);
-        return "{$indent}  {$key}: {$stringifiedValue}";
+    $mappedArr = array_map(function ($key, $item) use ($nextIndent, $depth) {
+        $value = stringify($item, $depth + 1);
+        return "{$nextIndent}  {$key}: {$value}";
     }, array_keys($arr), $arr);
 
-    return "{\n" . implode("\n", $parts) . "\n" . substr($indent, 2) . "}";
+    return implode("\n", [
+        '{',
+        ...$mappedArr,
+        "{$indent}  }",
+    ]);
 }
 
 function stringifyBool(bool $value): string
